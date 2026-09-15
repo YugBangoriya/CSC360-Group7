@@ -1,0 +1,16 @@
+# Compiled output
+target/
+
+# IDE files
+.idea/
+*.iml
+.vscode/settings.json
+
+# macOS system files
+.DS_Store
+
+# Taskwood local data file (differs per machine, not committed)
+data/taskwood.json
+
+# Jackson backup file created on corrupt JSON
+*.json.bak
