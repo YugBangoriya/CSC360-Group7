@@ -1,6 +1,10 @@
 # Compiled output
 target/
 
+# Local Maven binaries
+apache-maven-*/
+maven.tar.gz
+
 # IDE files
 .idea/
 *.iml
