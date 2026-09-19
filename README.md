@@ -1,130 +1,155 @@
-# CSC360 Group 7 — Tree of Objects Editor (Taskwood)
+# CSC360 Group 7: Tree Object Editor
 
 ![Java](https://img.shields.io/badge/Java-17-orange.svg)
 ![JavaFX](https://img.shields.io/badge/JavaFX-21-blue.svg)
 ![Build](https://img.shields.io/badge/Build-Maven-brightgreen.svg)
-![Theme](https://img.shields.io/badge/UI%20Theme-Catppuccin%20Mocha-purple.svg)
+![Theme](https://img.shields.io/badge/Theme-Light%20%2F%20Dark-purple.svg)
 
-> **Course:** AU CSC360 — Computer Graphics & Image Processing  
-> **Team:** Group 7  
-> **Project:** Tree of Objects Editor / Taskwood Manager  
-
----
-
-## 📌 Overview
-
-**Taskwood / Tree of Objects Editor** is a local-first JavaFX desktop application designed to organize hierarchical data structures (such as Workspaces, Projects, and Tasks or organizational nodes) into an interactive, expandable tree. 
-
-Each node in the tree can act as either a **container (folder)** or an **item (leaf)** and supports custom dynamic key-value metadata properties edited via a real-time Property Inspector table. All changes automatically persist locally using Java Object Serialization.
+> **Course:** AU CSC360, Computer Graphics & Image Processing
+> **Team:** Group 7
+> **Task:** Write a JavaFX program with a tree of objects, with support for editing each object.
 
 ---
 
-## ✨ Key Features
+## Overview
 
-- 🌲 **Hierarchical Tree View:** 
-  - Unlimited nesting levels with expandable/collapsible folder nodes and item leaves.
-  - Interactive right-click **Context Menu** for adding, renaming, and deleting nodes on the fly.
-- 📋 **Dynamic Property Inspector:**
-  - View and modify key-value attribute maps associated with any selected tree node.
-  - Double-click inline cell editing powered by `TextFieldTableCell`.
-  - Convenient control panel to add new attributes or remove existing ones.
-- 💾 **Automatic Object Persistence:**
-  - Complete tree structure state serialization to `tree_data.ser` in the user's home directory (`PersistenceUtil`).
-  - Fallback automatic initialization of a default template tree if no saved state exists.
-- 🎨 **Modern Catppuccin Mocha Dark UI:**
-  - Modern, dark-themed styling with rich typography, clean borders, custom split pane divider handles, and highlighted table/tree selections.
-- 🚀 **Standard Java Launcher Integration:**
-  - Includes a non-application wrapper launcher [`Main.java`](file:///c:/Users/User/OneDrive/Documents/AU%20CSC360/CSC360-Group7/src/main/java/com/treeapp/Main.java) to prevent module path bootstrap issues during standalone runtime execution.
+The Tree Object Editor is a JavaFX desktop app for working with a tree of objects. Each object is either a **folder** (it can hold other objects) or an **item** (it can't). Every object has a name and any number of key/value properties, and you edit all of it from the screen. Your changes are saved to your computer automatically.
+
+The window has three panels:
+
+| Panel | What it does |
+| :--- | :--- |
+| **Explorer** (left) | Shows the tree. Add, rename, duplicate, delete, and drag nodes around. |
+| **Property Editor** (middle) | Edit the selected node's name and its key/value properties. |
+| **JSON Preview** (right) | Shows the selected node and everything under it as JSON. Has a **Copy** button. |
+
+## Screenshots
+
+| Dark | Light |
+| :--: | :--: |
+| ![Dark theme](docs/screenshots/shot_dark.png) | ![Light theme](docs/screenshots/shot_light.png) |
 
 ---
 
-## 🛠️ Project Architecture & Structure
+## Features
 
-The codebase is built cleanly using the **Model-View-Controller (MVC)** design pattern:
+- **Drag and drop:** Drag a node onto a folder to move it inside. Drop it on the top or bottom edge of a row to put it in that position. Drops that would break the tree are blocked: you can't move the root, drop a folder into itself or one of its own children, or drop something inside an item.
+- **Right-click menu:** New Folder, New Item, Rename, Duplicate, Delete, Expand All and Collapse All.
+- **Light and dark theme:** Switch with the button in the top right, or press `Ctrl+T`. The app remembers your choice.
+- **Live editing:** Name and property changes go straight into the node as you type, so switching to another node never loses your work.
+- **Safe deleting:** Deleting asks for confirmation and tells you how many nodes inside it will go too.
+- **Automatic saving:** Every change is written to disk. The **Save to Disk** button saves on demand and shows a message if the save fails.
+- **Input checks:** Duplicate property keys and blank names are rejected.
+- **Keyboard shortcuts:** `F2` rename, `Delete` delete, `Ctrl+T` switch theme.
+
+---
+
+## Getting Started
+
+### What you need
+
+- **JDK 17 or newer** (check with `java -version`)
+- **Apache Maven 3.6 or newer** (check with `mvn -version`)
+
+### Run it
+
+```bash
+git clone https://github.com/YugBangoriya/CSC360-Group7.git
+cd CSC360-Group7
+mvn clean javafx:run
+```
+
+The first run downloads JavaFX, so it needs an internet connection and may take a minute.
+
+### Run it in VS Code
+
+1. Install the **Extension Pack for Java**.
+2. Open the project folder and wait for Java to finish loading.
+3. Open the terminal (`` Ctrl+` ``) and run `mvn clean javafx:run`.
+
+Running the main class with the green Run button can fail with *"JavaFX runtime components are missing"*. Use the Maven command above instead.
+
+---
+
+## How to Use It
+
+**Add nodes**
+1. Select a folder in the Explorer, or select an item to add next to it.
+2. Click **+ Folder** or **+ Item** (or right-click and choose **New Folder** / **New Item**).
+3. Type a name and press OK.
+
+**Edit a node**
+1. Click the node in the Explorer.
+2. Change the name in **Node Name**.
+3. To add a property, type a key and value at the bottom and click **Add** (or press `Enter`).
+4. To change a property, double-click its key or value in the table, type, and press `Enter`.
+5. To remove a property, select its row and click **Delete** in the Property Editor.
+
+**Move nodes**
+- Drag a node onto a folder to put it inside.
+- Drag it to the top or bottom edge of a row to put it just above or below that row.
+
+**Other**
+- **Rename:** select a node and press `F2`, or use the right-click menu.
+- **Duplicate:** right-click a node and choose **Duplicate**. The copy is named "... (copy)" and gets its own properties and children.
+- **Delete a node:** select it and press `Delete`, or click **Delete** in the Explorer.
+- **Copy the JSON:** click **Copy** above the JSON Preview.
+
+Your data is stored in a file called `tree_data.ser` in your home folder. Delete that file if you want to start again from the default tree.
+
+---
+
+## Project Structure
+
+The project follows a Model-View-Controller layout.
 
 ```text
 CSC360-Group7/
 ├── pom.xml
 ├── README.md
-└── src/
-    └── main/
-        └── java/
-            └── com/
-                └── treeapp/
-                    ├── App.java                   # JavaFX Application Entry Point & Global CSS Styles
-                    ├── Main.java                  # Standalone Launcher Wrapper
-                    ├── controller/
-                    │   └── MainController.java    # Central UI Controller & Event Handlers
-                    ├── model/
-                    │   └── TreeNode.java          # Recursive Serializable Object Model
-                    └── util/
-                        └── PersistenceUtil.java   # Binary Object Serialization & Default Tree Generation
+├── docs/screenshots/                   # UI screenshots (dark and light)
+└── src/main/
+    ├── java/com/treeapp/
+    │   ├── Main.java                   # Launcher (avoids the JavaFX module-path error)
+    │   ├── App.java                    # Window, top bar and theme button
+    │   ├── controller/
+    │   │   └── MainController.java     # Connects the panels to the data; every change to the tree happens here
+    │   ├── model/
+    │   │   ├── TreeNode.java           # One node: id, name, folder flag, children, properties
+    │   │   └── PropertyEntry.java      # One row of the property table
+    │   ├── view/
+    │   │   ├── ExplorerPanel.java      # Tree, toolbar, right-click menu, drag and drop
+    │   │   ├── PropertyEditorPanel.java
+    │   │   └── JsonPreviewPanel.java
+    │   └── util/
+    │       ├── PersistenceUtil.java    # Saves and loads ~/tree_data.ser
+    │       ├── JsonFormatter.java      # Turns a node into JSON text
+    │       └── ThemeManager.java       # Switches and remembers the theme
+    └── resources/styles/
+        ├── dark-theme.css
+        └── light-theme.css
 ```
 
-### Component Breakdown
+### How the pieces fit together
 
-| File | Description |
-| :--- | :--- |
-| [`TreeNode.java`](file:///c:/Users/User/OneDrive/Documents/AU%20CSC360/CSC360-Group7/src/main/java/com/treeapp/model/TreeNode.java) | Data model representing a node in the tree hierarchy. Contains UUID, name, folder flag, child list, and a key-value property map (`LinkedHashMap`). |
-| [`MainController.java`](file:///c:/Users/User/OneDrive/Documents/AU%20CSC360/CSC360-Group7/src/main/java/com/treeapp/controller/MainController.java) | Manages the JavaFX UI components (`TreeView`, `TableView`, `SplitPane`), layout assembly, context menus, and inline editing commit handlers. |
-| [`PersistenceUtil.java`](file:///c:/Users/User/OneDrive/Documents/AU%20CSC360/CSC360-Group7/src/main/java/com/treeapp/util/PersistenceUtil.java) | Handles binary serialization (`ObjectOutputStream`/`ObjectInputStream`) saving data to `~/tree_data.ser`. |
-| [`App.java`](file:///c:/Users/User/OneDrive/Documents/AU%20CSC360/CSC360-Group7/src/main/java/com/treeapp/App.java) | Configures the primary stage, applies the Catppuccin Mocha dark theme stylesheet, and handles window focus logic. |
-| [`Main.java`](file:///c:/Users/User/OneDrive/Documents/AU%20CSC360/CSC360-Group7/src/main/java/com/treeapp/Main.java) | Entry wrapper invoking `App.main(args)` to ensure compatibility with standard Java runtime execution without explicit `--module-path` flags. |
+- **Model** (`TreeNode`) holds the data and knows nothing about the screen.
+- **Views** (`ExplorerPanel`, `PropertyEditorPanel`, `JsonPreviewPanel`) draw the screen and report what the user did.
+- **Controller** (`MainController`) receives those reports and updates the model, then refreshes the screen and saves.
+- **Styling** lives in the two CSS files. Both use the same class names, so switching theme only swaps the stylesheet.
 
 ---
 
-## ⚡ Prerequisites
+## Built With
 
-Make sure you have the following installed on your machine:
-
-- **Java Development Kit (JDK):** Version 17 or higher
-- **Apache Maven:** Version 3.6 or higher
-
----
-
-## 🚀 Building & Running
-
-### 1. Build the Project
-Compile the project using Maven:
-```bash
-mvn clean compile
-```
-
-### 2. Run the Application
-You can launch the application using the **JavaFX Maven Plugin**:
-```bash
-mvn javafx:run
-```
-
-Alternatively, run via Maven Exec Plugin targeting the launcher class:
-```bash
-mvn exec:java -Dexec.mainClass="com.treeapp.Main"
-```
+- Java 17
+- JavaFX 21 (`javafx-controls`)
+- Apache Maven, with `javafx-maven-plugin` 0.0.8
+- Plain CSS for the light and dark themes
 
 ---
 
-## 📖 Usage Instructions
+## Known Limitations
 
-1. **Navigating the Tree:**
-   - Click on any node in the left pane tree view to load its dynamic properties in the right inspector pane.
-   - Click the expand arrow next to a folder node to toggle child visibility.
-2. **Managing Nodes (Right-Click Context Menu):**
-   - **Add Child Folder / Item:** Right-click a folder node to create nested containers or leaf nodes.
-   - **Rename Node:** Right-click any node and select *Rename* to update its display label.
-   - **Delete Node:** Right-click a node and select *Delete* to remove it and all of its sub-children.
-3. **Editing Properties:**
-   - **Add Property:** Enter a *New Key* and *New Value* in the text fields at the bottom of the inspector pane, then click **Add Property**.
-   - **Inline Edit:** Double-click any key or value cell in the Property Table to edit text directly. Press `Enter` to commit changes.
-   - **Delete Property:** Select a property row in the table and click **Delete Selected**.
-4. **Saving Data:**
-   - Click the **Save Tree State** button at the bottom of the tree view to persist your data to disk immediately. Data also persists upon serialization requests.
-
----
-
-## 🧰 Built With
-
-- **Language:** Java 17
-- **UI Framework:** JavaFX 21 (`javafx-controls`)
-- **Build System:** Apache Maven
-- **Plugin:** `javafx-maven-plugin` (0.0.8)
-- **Styling:** Custom CSS (Catppuccin Mocha Palette)
+- Data is saved with Java serialization, so `tree_data.ser` is not human-readable and may not open if the `TreeNode` class changes in a future version.
+- There is no undo or redo yet.
+- Drag and drop works inside the tree only; you can't drag between panels.
