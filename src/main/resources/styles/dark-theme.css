@@ -1,0 +1,152 @@
+/* ===== Dark theme (Catppuccin Mocha) ===== */
+.root {
+    -fx-base: #1e1e2e;
+    -fx-background: #1e1e2e;
+    -fx-control-inner-background: #1e1e2e;
+    -fx-font-family: "Segoe UI", system;
+    -fx-font-size: 13px;
+
+    /* semantic colors used by the classes below */
+    -app-panel: #2a2a3e;
+    -app-surface: #1e1e2e;
+    -app-surface-alt: #181825;
+    -app-header: #313244;
+    -app-border: #45475a;
+    -app-selected: #45475a;
+    -app-text: #cdd6f4;
+    -app-muted: #6c7086;
+    -app-accent: #89b4fa;
+    -app-accent-hover: #b4befe;
+    -app-green: #a6e3a1;
+    -app-red: #f38ba8;
+    -app-on-accent: #1e1e2e;
+    -app-drop: #89b4fa;
+}
+
+.label { -fx-text-fill: -app-text; }
+
+.panel { -fx-background-color: -app-panel; }
+
+.panel-title {
+    -fx-text-fill: -app-accent;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+}
+
+.field-label { -fx-text-fill: -app-text; -fx-font-weight: bold; }
+
+.hint-label { -fx-text-fill: -app-muted; -fx-font-style: italic; }
+
+/* ---- text inputs ---- */
+.text-field {
+    -fx-background-color: -app-surface;
+    -fx-text-fill: -app-text;
+    -fx-highlight-fill: -app-selected;
+    -fx-highlight-text-fill: -app-text;
+    -fx-prompt-text-fill: -app-muted;
+    -fx-border-color: -app-border;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+}
+.text-field:focused { -fx-border-color: -app-accent; }
+
+.text-area {
+    -fx-background-color: -app-surface;
+    -fx-control-inner-background: -app-surface;
+    -fx-text-fill: -app-text;
+}
+.text-area .content { -fx-background-color: -app-surface; }
+.json-area {
+    -fx-text-fill: -app-green;
+    -fx-font-family: "Consolas", "Monospaced", monospace;
+    -fx-font-size: 12px;
+}
+
+/* ---- buttons ---- */
+.button {
+    -fx-background-color: -app-accent;
+    -fx-text-fill: -app-on-accent;
+    -fx-font-weight: bold;
+    -fx-background-radius: 4;
+    -fx-cursor: hand;
+}
+.button:hover { -fx-background-color: -app-accent-hover; }
+.button:disabled { -fx-opacity: 0.45; }
+.button-green { -fx-background-color: -app-green; }
+.button-green:hover { -fx-background-color: derive(-app-green, 20%); }
+.button-red { -fx-background-color: -app-red; }
+.button-red:hover { -fx-background-color: derive(-app-red, 20%); }
+.button-small { -fx-font-size: 11px; -fx-padding: 5 10; }
+.button-large { -fx-font-size: 14px; -fx-padding: 8 20; }
+.saved-label { -fx-text-fill: -app-green; -fx-font-weight: bold; -fx-font-size: 14px; }
+.error-label { -fx-text-fill: -app-red; -fx-font-weight: bold; -fx-font-size: 14px; }
+
+/* ---- tree ---- */
+.tree-view {
+    -fx-background-color: -app-surface;
+    -fx-control-inner-background: -app-surface;
+}
+.tree-cell {
+    -fx-background-color: -app-surface;
+    -fx-text-fill: -app-text;
+    -fx-font-size: 13px;
+}
+.tree-cell:filled:hover { -fx-background-color: -app-header; }
+.tree-cell:selected { -fx-background-color: -app-selected; -fx-text-fill: -app-accent; }
+.tree-cell .tree-disclosure-node .arrow { -fx-background-color: -app-muted; }
+
+/* drag and drop feedback */
+.tree-cell.drop-into {
+    -fx-background-color: derive(-app-accent, -55%);
+    -fx-border-color: -app-drop;
+    -fx-border-width: 1;
+}
+.tree-cell.drop-above { -fx-border-color: -app-drop transparent transparent transparent; -fx-border-width: 2 0 0 0; }
+.tree-cell.drop-below { -fx-border-color: transparent transparent -app-drop transparent; -fx-border-width: 0 0 2 0; }
+
+/* ---- table ---- */
+.table-view {
+    -fx-background-color: -app-surface;
+    -fx-base: -app-surface;
+    -fx-control-inner-background: -app-surface;
+    -fx-table-cell-border-color: -app-header;
+}
+.table-view .column-header-background { -fx-background-color: -app-header; }
+.table-view .column-header, .table-view .filler {
+    -fx-background-color: -app-header;
+    -fx-size: 32px;
+}
+.table-view .column-header .label { -fx-text-fill: -app-accent; -fx-font-weight: bold; }
+.table-row-cell { -fx-background-color: -app-surface; -fx-text-fill: -app-text; }
+.table-row-cell:odd { -fx-background-color: -app-surface-alt; }
+.table-row-cell:selected { -fx-background-color: -app-selected; }
+.table-cell { -fx-text-fill: -app-text; }
+.table-view .placeholder .label { -fx-text-fill: -app-muted; }
+
+/* ---- split pane / scrollbars ---- */
+.split-pane { -fx-background-color: -app-surface; -fx-padding: 0; }
+.split-pane > .split-pane-divider { -fx-background-color: -app-header; -fx-padding: 0 2 0 2; }
+.scroll-bar { -fx-background-color: -app-surface; }
+.scroll-bar .thumb { -fx-background-color: -app-border; -fx-background-radius: 4; }
+.scroll-bar .increment-button, .scroll-bar .decrement-button { -fx-padding: 0; }
+
+/* ---- menus & dialogs ---- */
+.context-menu { -fx-background-color: -app-header; -fx-border-color: -app-border; }
+.menu-item .label { -fx-text-fill: -app-text; }
+.menu-item:focused { -fx-background-color: -app-selected; }
+.menu-item:disabled .label { -fx-text-fill: -app-muted; }
+.separator .line { -fx-border-color: -app-border; }
+
+.dialog-pane { -fx-background-color: -app-panel; }
+.dialog-pane .header-panel { -fx-background-color: -app-header; }
+.dialog-pane .header-panel .label { -fx-text-fill: -app-text; }
+.dialog-pane > .content.label { -fx-text-fill: -app-text; }
+.tooltip { -fx-background-color: -app-header; -fx-text-fill: -app-text; }
+
+/* ---- tree icons (vector shapes) ---- */
+.icon-folder      { -fx-fill: #f9e2af;      }
+.icon-folder-open { -fx-fill: #fab387; }
+.icon-file        { -fx-fill: #89b4fa;      }
+.tree-cell:selected .icon-folder,
+.tree-cell:selected .icon-folder-open,
+.tree-cell:selected .icon-file { -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 2, 0, 0, 1); }

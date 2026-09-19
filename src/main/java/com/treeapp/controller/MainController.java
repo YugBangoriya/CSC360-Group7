@@ -1,598 +1,296 @@
-// FILE: src/main/java/com/treeapp/controller/MainController.java
 package com.treeapp.controller;
 
+import com.treeapp.model.PropertyEntry;
 import com.treeapp.model.TreeNode;
+import com.treeapp.util.JsonFormatter;
 import com.treeapp.util.PersistenceUtil;
+import com.treeapp.view.ExplorerPanel;
+import com.treeapp.view.ExplorerPanel.DropPosition;
+import com.treeapp.view.JsonPreviewPanel;
+import com.treeapp.view.PropertyEditorPanel;
 
-import javafx.animation.FadeTransition;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.Label;
-import javafx.scene.control.MenuItem;
 import javafx.scene.control.SplitPane;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
-import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
-import javafx.scene.control.cell.TextFieldTableCell;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
-import javafx.util.Duration;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * Connects the three panels to the data model.
+ * The panels only draw things and report user actions; every change to the
+ * TreeNode data happens in this class.
+ */
 public class MainController {
 
-    private final SplitPane rootPane;
+    private final SplitPane rootPane = new SplitPane();
+    private final TreeNode rootNode;
 
-    private TreeNode rootTreeNode;
+    private final ExplorerPanel explorer = new ExplorerPanel();
+    private final PropertyEditorPanel editor = new PropertyEditorPanel();
+    private final JsonPreviewPanel preview = new JsonPreviewPanel();
+    private final TreeView<TreeNode> treeView = explorer.getTreeView();
 
-    // Tree panel controls
-    private TreeView<TreeNode> treeView;
-
-    // Property editor controls
-    private TextField nameField;
-    private TableView<PropertyEntry> propertyTable;
-    private ObservableList<PropertyEntry> propertyEntries;
-    private TextField newKeyField;
-    private TextField newValueField;
-    private Button addPropertyBtn;
-    private Button deletePropertyBtn;
-    private Button saveBtn;
-    private Label savedLabel;
-
-    // JSON preview control
-    private TextArea jsonPreviewArea;
+    /** The node the editor is currently showing. */
+    private TreeNode current;
 
     public MainController() {
-        this.rootPane = new SplitPane();
-        this.propertyEntries = FXCollections.observableArrayList();
-
-        // Load data tree
-        this.rootTreeNode = PersistenceUtil.load();
-
-        initUI();
+        this.rootNode = PersistenceUtil.load();
+        buildUI();
+        wireEvents();
+        selectInitialNode();
     }
 
     public SplitPane getRootPane() {
         return rootPane;
     }
 
-    private void initUI() {
-        rootPane.setStyle("-fx-background-color: #1e1e2e; -fx-base: #1e1e2e;");
+    // ── setup ───────────────────────────────────────────────────────
 
-        VBox leftPanel = createLeftPanel();
-        VBox centerPanel = createCenterPanel();
-        VBox rightPanel = createRightPanel();
-
-        rootPane.getItems().addAll(leftPanel, centerPanel, rightPanel);
+    private void buildUI() {
+        treeView.setRoot(explorer.buildTreeItem(rootNode));
+        rootPane.getItems().addAll(explorer, editor, preview);
         rootPane.setDividerPositions(0.30, 0.70);
-
-        // Select initial item if available
-        if (!treeView.getRoot().getChildren().isEmpty()) {
-            treeView.getSelectionModel().select(treeView.getRoot().getChildren().get(0));
-        } else {
-            treeView.getSelectionModel().select(treeView.getRoot());
-        }
     }
 
-    // ── LEFT PANEL (Tree View) ──────────────────────────────
-    private VBox createLeftPanel() {
-        VBox container = new VBox(10);
-        container.setPadding(new Insets(12));
-        container.setStyle("-fx-background-color: #2a2a3e;");
-
-        Label title = new Label("EXPLORER");
-        title.setStyle("-fx-text-fill: #89b4fa; -fx-font-weight: bold; -fx-font-size: 14px;");
-
-        treeView = new TreeView<>();
-        treeView.setShowRoot(false);
-        treeView.setStyle(
-                "-fx-background-color: #1e1e2e; -fx-control-inner-background: #1e1e2e; -fx-text-fill: #cdd6f4;");
-
-        TreeItem<TreeNode> rootItem = buildTreeItem(rootTreeNode);
-        treeView.setRoot(rootItem);
-
-        // Cell Factory with Icons and Formatting
-        treeView.setCellFactory(tv -> {
-            TreeCell<TreeNode> cell = new TreeCell<>() {
-                @Override
-                protected void updateItem(TreeNode item, boolean empty) {
-                    super.updateItem(item, empty);
-                    if (empty || item == null) {
-                        setText(null);
-                        setGraphic(null);
-                        setContextMenu(null);
-                    } else {
-                        setText(item.getName());
-                        if (item.isFolder()) {
-                            Label icon = new Label(getTreeItem() != null && getTreeItem().isExpanded() ? "📂" : "📁");
-                            icon.setStyle("-fx-font-size: 14px;");
-                            setGraphic(icon);
-                        } else {
-                            Label icon = new Label("📄");
-                            icon.setStyle("-fx-font-size: 14px;");
-                            setGraphic(icon);
-                        }
-                        setStyle("-fx-text-fill: #cdd6f4; -fx-font-size: 13px;");
-                    }
-                }
-            };
-
-            // Double click toggle expand/collapse for folders
-            cell.setOnMouseClicked(event -> {
-                if (event.getClickCount() == 2 && cell.getItem() != null && cell.getItem().isFolder()
-                        && cell.getTreeItem() != null) {
-                    cell.getTreeItem().setExpanded(!cell.getTreeItem().isExpanded());
-                }
-            });
-
-            return cell;
-        });
-
-        // Context Menu for right-click on nodes
-        ContextMenu contextMenu = new ContextMenu();
-        MenuItem addFolderItem = new MenuItem("Add Child Folder");
-        MenuItem addItemItem = new MenuItem("Add Child Item");
-        MenuItem renameItem = new MenuItem("Rename");
-        MenuItem deleteItem = new MenuItem("Delete");
-
-        contextMenu.getItems().addAll(addFolderItem, addItemItem, renameItem, deleteItem);
-
-        treeView.setContextMenu(contextMenu);
-
-        // Dynamically configure menu actions based on selected node
-        contextMenu.setOnShowing(e -> {
-            TreeItem<TreeNode> selected = treeView.getSelectionModel().getSelectedItem();
-            if (selected == null || selected.getValue() == null) {
-                addFolderItem.setDisable(true);
-                addItemItem.setDisable(true);
-                renameItem.setDisable(true);
-                deleteItem.setDisable(true);
+    private void wireEvents() {
+        treeView.getSelectionModel().selectedItemProperty().addListener((obs, old, now) -> {
+            if (now == null || now.getValue() == null) {
+                current = null;
+                editor.clear();
+                preview.setJson("");
+                explorer.updateToolbar(false, false);
             } else {
-                boolean isFolder = selected.getValue().isFolder();
-                addFolderItem.setDisable(!isFolder);
-                addItemItem.setDisable(!isFolder);
-                renameItem.setDisable(false);
-                deleteItem.setDisable(selected == treeView.getRoot());
+                showNode(now.getValue());
+                explorer.updateToolbar(true, now.getParent() == null);
             }
         });
 
-        addFolderItem.setOnAction(e -> handleAddChild(true));
-        addItemItem.setOnAction(e -> handleAddChild(false));
-        renameItem.setOnAction(e -> handleRenameNode());
-        deleteItem.setOnAction(e -> handleDeleteNode());
+        explorer.setOnAdd(this::addNode);
+        explorer.setOnRename(this::renameNode);
+        explorer.setOnDelete(this::deleteNode);
+        explorer.setOnDuplicate(this::duplicateNode);
+        explorer.setOnMove(this::moveNode);
 
-        // Tree selection listener
-        treeView.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
-            if (newVal != null && newVal.getValue() != null) {
-                loadNodeProperties(newVal.getValue());
-            } else {
-                clearNodeProperties();
-            }
-        });
-
-        // Toolbar buttons for quick actions
-        HBox toolbar = new HBox(6);
-        toolbar.setAlignment(Pos.CENTER_LEFT);
-
-        Button addFolderBtn = new Button("📁 + Folder");
-        addFolderBtn.setStyle(
-                "-fx-background-color: #89b4fa; -fx-text-fill: #1e1e2e; -fx-font-weight: bold; -fx-font-size: 11px; -fx-padding: 5 8; -fx-cursor: hand;");
-        addFolderBtn.setOnAction(e -> handleAddFolderFromToolbar());
-
-        Button addItemBtn = new Button("📄 + Item");
-        addItemBtn.setStyle(
-                "-fx-background-color: #a6e3a1; -fx-text-fill: #1e1e2e; -fx-font-weight: bold; -fx-font-size: 11px; -fx-padding: 5 8; -fx-cursor: hand;");
-        addItemBtn.setOnAction(e -> handleAddItemFromToolbar());
-
-        Button deleteBtn = new Button("🗑 Delete");
-        deleteBtn.setStyle(
-                "-fx-background-color: #f38ba8; -fx-text-fill: #1e1e2e; -fx-font-weight: bold; -fx-font-size: 11px; -fx-padding: 5 8; -fx-cursor: hand;");
-        deleteBtn.setOnAction(e -> handleDeleteNode());
-
-        toolbar.getChildren().addAll(addFolderBtn, addItemBtn, deleteBtn);
-
-        VBox.setVgrow(treeView, Priority.ALWAYS);
-        container.getChildren().addAll(title, toolbar, treeView);
-        return container;
+        editor.setOnEdited(this::applyEditsToNode);
+        editor.setOnSave(this::saveToDisk);
     }
 
-    private TreeItem<TreeNode> buildTreeItem(TreeNode node) {
-        TreeItem<TreeNode> item = new TreeItem<>(node);
-        if (node.isFolder()) {
-            item.setExpanded(true);
-            for (TreeNode child : node.getChildren()) {
-                item.getChildren().add(buildTreeItem(child));
-            }
-        }
-        return item;
+    private void selectInitialNode() {
+        // Select the root so the JSON preview shows the whole tree
+        treeView.getSelectionModel().select(treeView.getRoot());
     }
 
-    // ── CENTER PANEL (Property Editor) ──────────────────────
-    private VBox createCenterPanel() {
-        VBox container = new VBox(14);
-        container.setPadding(new Insets(12));
-        container.setStyle("-fx-background-color: #2a2a3e;");
+    // ── showing / editing the selected node ─────────────────────────
 
-        Label title = new Label("PROPERTY EDITOR");
-        title.setStyle("-fx-text-fill: #89b4fa; -fx-font-weight: bold; -fx-font-size: 14px;");
-
-        // Node Name Row
-        HBox nameBox = new HBox(10);
-        nameBox.setAlignment(Pos.CENTER_LEFT);
-        Label nameLabel = new Label("Node Name:");
-        nameLabel.setStyle("-fx-text-fill: #cdd6f4; -fx-font-weight: bold;");
-
-        nameField = new TextField();
-        nameField.setPromptText("Enter node name");
-        nameField.setStyle(
-                "-fx-background-color: #1e1e2e; -fx-text-fill: #cdd6f4; -fx-border-color: #45475a; -fx-border-radius: 4;");
-        HBox.setHgrow(nameField, Priority.ALWAYS);
-        nameBox.getChildren().addAll(nameLabel, nameField);
-
-        // TableView for Properties
-        propertyTable = new TableView<>();
-        propertyTable.setEditable(true);
-        propertyTable.setStyle(
-                "-fx-background-color: #1e1e2e; -fx-control-inner-background: #1e1e2e; -fx-table-cell-border-color: #313244;");
-
-        TableColumn<PropertyEntry, String> keyCol = new TableColumn<>("Property Key");
-        keyCol.setCellValueFactory(data -> data.getValue().keyProperty());
-        keyCol.setCellFactory(TextFieldTableCell.forTableColumn());
-        keyCol.setOnEditCommit(e -> e.getRowValue().setKey(e.getNewValue()));
-        keyCol.setPrefWidth(180);
-
-        TableColumn<PropertyEntry, String> valueCol = new TableColumn<>("Property Value");
-        valueCol.setCellValueFactory(data -> data.getValue().valueProperty());
-        valueCol.setCellFactory(TextFieldTableCell.forTableColumn());
-        valueCol.setOnEditCommit(e -> e.getRowValue().setValue(e.getNewValue()));
-        valueCol.setPrefWidth(220);
-
-        propertyTable.getColumns().add(keyCol);
-        propertyTable.getColumns().add(valueCol);
-        propertyTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-        propertyTable.setItems(propertyEntries);
-
-        VBox.setVgrow(propertyTable, Priority.ALWAYS);
-
-        // Add Property controls
-        HBox addBox = new HBox(8);
-        addBox.setAlignment(Pos.CENTER_LEFT);
-
-        newKeyField = new TextField();
-        newKeyField.setPromptText("New Key");
-        newKeyField.setStyle(
-                "-fx-background-color: #1e1e2e; -fx-text-fill: #cdd6f4; -fx-border-color: #45475a; -fx-border-radius: 4;");
-        HBox.setHgrow(newKeyField, Priority.ALWAYS);
-
-        newValueField = new TextField();
-        newValueField.setPromptText("New Value");
-        newValueField.setStyle(
-                "-fx-background-color: #1e1e2e; -fx-text-fill: #cdd6f4; -fx-border-color: #45475a; -fx-border-radius: 4;");
-        HBox.setHgrow(newValueField, Priority.ALWAYS);
-
-        addPropertyBtn = new Button("Add Property");
-        addPropertyBtn.setStyle(
-                "-fx-background-color: #89b4fa; -fx-text-fill: #1e1e2e; -fx-font-weight: bold; -fx-cursor: hand;");
-        addPropertyBtn.setOnAction(e -> handleAddProperty());
-
-        deletePropertyBtn = new Button("Delete Selected");
-        deletePropertyBtn.setStyle(
-                "-fx-background-color: #f38ba8; -fx-text-fill: #1e1e2e; -fx-font-weight: bold; -fx-cursor: hand;");
-        deletePropertyBtn.setOnAction(e -> handleDeleteProperty());
-
-        addBox.getChildren().addAll(newKeyField, newValueField, addPropertyBtn, deletePropertyBtn);
-
-        // Save Controls
-        HBox saveBox = new HBox(12);
-        saveBox.setAlignment(Pos.CENTER_LEFT);
-
-        saveBtn = new Button("Save Changes");
-        saveBtn.setStyle(
-                "-fx-background-color: #a6e3a1; -fx-text-fill: #1e1e2e; -fx-font-weight: bold; -fx-font-size: 14px; -fx-padding: 8 20; -fx-cursor: hand;");
-        saveBtn.setOnAction(e -> handleSaveNode());
-
-        savedLabel = new Label("Saved ✓");
-        savedLabel.setStyle("-fx-text-fill: #a6e3a1; -fx-font-weight: bold; -fx-font-size: 14px;");
-        savedLabel.setOpacity(0.0);
-
-        saveBox.getChildren().addAll(saveBtn, savedLabel);
-
-        container.getChildren().addAll(title, nameBox, propertyTable, addBox, saveBox);
-        return container;
+    private void showNode(TreeNode node) {
+        current = node;
+        String hint = node.isFolder()
+                ? "Folder: it can hold other nodes. Drag nodes onto it to move them in."
+                : null;
+        editor.show(node.getName(), node.getProperties(), hint);
+        preview.setJson(JsonFormatter.format(node));
     }
 
-    // ── RIGHT PANEL (JSON Preview) ──────────────────────────
-    private VBox createRightPanel() {
-        VBox container = new VBox(10);
-        container.setPadding(new Insets(12));
-        container.setStyle("-fx-background-color: #2a2a3e;");
-
-        Label title = new Label("JSON PREVIEW");
-        title.setStyle("-fx-text-fill: #89b4fa; -fx-font-weight: bold; -fx-font-size: 14px;");
-
-        jsonPreviewArea = new TextArea();
-        jsonPreviewArea.setEditable(false);
-        jsonPreviewArea.setWrapText(true);
-        jsonPreviewArea.setStyle(
-                "-fx-control-inner-background: #1e1e2e; -fx-text-fill: #a6e3a1; -fx-font-family: 'Monospaced', 'Consolas', monospace; -fx-font-size: 12px;");
-
-        VBox.setVgrow(jsonPreviewArea, Priority.ALWAYS);
-        container.getChildren().addAll(title, jsonPreviewArea);
-        return container;
-    }
-
-    // ── LOGIC & EVENT HANDLERS ──────────────────────────────
-    private void loadNodeProperties(TreeNode node) {
-        nameField.setText(node.getName());
-        propertyEntries.clear();
-        for (Map.Entry<String, String> entry : node.getProperties().entrySet()) {
-            propertyEntries.add(new PropertyEntry(entry.getKey(), entry.getValue()));
-        }
-        updateJsonPreview(node);
-    }
-
-    private void clearNodeProperties() {
-        nameField.clear();
-        propertyEntries.clear();
-        jsonPreviewArea.clear();
-    }
-
-    private void handleAddProperty() {
-        String key = newKeyField.getText().trim();
-        String val = newValueField.getText().trim();
-        if (!key.isEmpty()) {
-            propertyEntries.add(new PropertyEntry(key, val));
-            newKeyField.clear();
-            newValueField.clear();
-        }
-    }
-
-    private void handleDeleteProperty() {
-        PropertyEntry selected = propertyTable.getSelectionModel().getSelectedItem();
-        if (selected != null) {
-            propertyEntries.remove(selected);
-        }
-    }
-
-    private void handleSaveNode() {
-        TreeItem<TreeNode> selectedTreeItem = treeView.getSelectionModel().getSelectedItem();
-        if (selectedTreeItem == null || selectedTreeItem.getValue() == null) {
+    /**
+     * Called on every edit in the property panel. The change goes straight into the
+     * node, so switching to another node can never lose an edit.
+     */
+    private void applyEditsToNode() {
+        if (current == null) {
             return;
         }
+        String name = editor.getNodeName().trim();
+        // A blank name would leave an invisible row in the tree, so keep the old one
+        if (!name.isEmpty()) {
+            current.setName(name);
+        }
 
-        TreeNode node = selectedTreeItem.getValue();
-        node.setName(nameField.getText().trim());
-
-        Map<String, String> newProps = new LinkedHashMap<>();
-        for (PropertyEntry entry : propertyEntries) {
-            if (entry.getKey() != null && !entry.getKey().trim().isEmpty()) {
-                newProps.put(entry.getKey().trim(), entry.getValue() != null ? entry.getValue() : "");
+        Map<String, String> props = new LinkedHashMap<>();
+        for (PropertyEntry e : editor.getEntries()) {
+            String key = e.getKey() == null ? "" : e.getKey().trim();
+            if (!key.isEmpty()) {
+                props.put(key, e.getValue() == null ? "" : e.getValue());
             }
         }
-        node.setProperties(newProps);
+        current.setProperties(props);
 
-        // Refresh tree view cell label
         treeView.refresh();
-
-        // Save tree data to disk
-        PersistenceUtil.save(rootTreeNode);
-
-        // Update JSON preview
-        updateJsonPreview(node);
-
-        // Fade transition for green "Saved ✓" label
-        savedLabel.setOpacity(1.0);
-        FadeTransition fade = new FadeTransition(Duration.seconds(2), savedLabel);
-        fade.setFromValue(1.0);
-        fade.setToValue(0.0);
-        fade.play();
+        preview.setJson(JsonFormatter.format(current));
+        autoSave();
     }
 
-    private void handleAddFolderFromToolbar() {
-        createNodeInCurrentContext(true);
+    private void autoSave() {
+        if (!PersistenceUtil.save(rootNode)) {
+            editor.setStatus("Could not save!", true);
+        }
     }
 
-    private void handleAddItemFromToolbar() {
-        createNodeInCurrentContext(false);
+    private void saveToDisk() {
+        if (PersistenceUtil.save(rootNode)) {
+            editor.setStatus("Saved \u2713", false);
+        } else {
+            editor.setStatus("Save failed", true);
+            new Alert(Alert.AlertType.ERROR,
+                    "Could not write to:\n" + PersistenceUtil.getFilePath()).showAndWait();
+        }
     }
 
-    private void createNodeInCurrentContext(boolean isFolder) {
+    // ── add / rename / delete / duplicate ───────────────────────────
+
+    /** Adds into the selected folder, or next to the selected item. */
+    private void addNode(boolean isFolder) {
         TreeItem<TreeNode> selected = treeView.getSelectionModel().getSelectedItem();
         TreeItem<TreeNode> parentItem;
-
         if (selected == null) {
             parentItem = treeView.getRoot();
-        } else if (selected.getValue() != null && selected.getValue().isFolder()) {
+        } else if (selected.getValue().isFolder()) {
             parentItem = selected;
-        } else if (selected.getParent() != null) {
-            parentItem = selected.getParent();
         } else {
-            parentItem = treeView.getRoot();
+            parentItem = selected.getParent() != null ? selected.getParent() : treeView.getRoot();
         }
 
-        String typeStr = isFolder ? "Folder" : "Item";
-        TextInputDialog dialog = new TextInputDialog("New " + typeStr);
-        dialog.setTitle("Add " + typeStr);
-        dialog.setHeaderText("Enter name for the new " + typeStr.toLowerCase() + ":");
+        String type = isFolder ? "Folder" : "Item";
+        TextInputDialog dialog = new TextInputDialog("New " + type);
+        dialog.setTitle("Add " + type);
+        dialog.setHeaderText("Name for the new " + type.toLowerCase() + " (inside '"
+                + parentItem.getValue().getName() + "'):");
         dialog.setContentText("Name:");
 
         Optional<String> result = dialog.showAndWait();
         if (result.isPresent() && !result.get().trim().isEmpty()) {
-            String name = result.get().trim();
-            TreeNode childNode = new TreeNode(name, isFolder);
-            parentItem.getValue().addChild(childNode);
+            TreeNode child = new TreeNode(result.get().trim(), isFolder);
+            parentItem.getValue().addChild(child);
 
-            TreeItem<TreeNode> childItem = buildTreeItem(childNode);
+            TreeItem<TreeNode> childItem = explorer.buildTreeItem(child);
             parentItem.getChildren().add(childItem);
             parentItem.setExpanded(true);
             treeView.getSelectionModel().select(childItem);
-
-            PersistenceUtil.save(rootTreeNode);
+            autoSave();
         }
     }
 
-    private void handleAddChild(boolean isFolder) {
-        createNodeInCurrentContext(isFolder);
-    }
-
-    private void handleRenameNode() {
-        TreeItem<TreeNode> selectedItem = treeView.getSelectionModel().getSelectedItem();
-        if (selectedItem == null || selectedItem.getValue() == null) {
+    private void renameNode() {
+        TreeItem<TreeNode> selected = treeView.getSelectionModel().getSelectedItem();
+        if (selected == null) {
             return;
         }
-
-        TreeNode node = selectedItem.getValue();
+        TreeNode node = selected.getValue();
         TextInputDialog dialog = new TextInputDialog(node.getName());
-        dialog.setTitle("Rename Node");
-        dialog.setHeaderText("Enter new name for node:");
+        dialog.setTitle("Rename");
+        dialog.setHeaderText("New name for '" + node.getName() + "':");
         dialog.setContentText("Name:");
 
         Optional<String> result = dialog.showAndWait();
         if (result.isPresent() && !result.get().trim().isEmpty()) {
             node.setName(result.get().trim());
-            nameField.setText(node.getName());
             treeView.refresh();
-            updateJsonPreview(node);
-            PersistenceUtil.save(rootTreeNode);
+            showNode(node);
+            autoSave();
         }
     }
 
-    private void handleDeleteNode() {
-        TreeItem<TreeNode> selectedItem = treeView.getSelectionModel().getSelectedItem();
-        if (selectedItem == null || selectedItem.getValue() == null || selectedItem == treeView.getRoot()) {
-            return;
+    private void deleteNode() {
+        TreeItem<TreeNode> selected = treeView.getSelectionModel().getSelectedItem();
+        if (selected == null || selected.getParent() == null) {
+            return; // nothing selected, or it's the root
         }
+        TreeNode node = selected.getValue();
+        int count = node.countNodes();
 
-        TreeNode node = selectedItem.getValue();
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Confirm Delete");
         alert.setHeaderText("Delete '" + node.getName() + "'?");
-        alert.setContentText("Are you sure you want to delete this node and all of its contents?");
+        alert.setContentText(count > 1
+                ? "This also deletes the " + (count - 1) + " node(s) inside it."
+                : "This cannot be undone.");
 
         Optional<ButtonType> result = alert.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
-            TreeItem<TreeNode> parentItem = selectedItem.getParent();
-            if (parentItem != null && parentItem.getValue() != null) {
-                parentItem.getValue().removeChild(node);
-                parentItem.getChildren().remove(selectedItem);
-                treeView.getSelectionModel().select(parentItem);
-                PersistenceUtil.save(rootTreeNode);
-            }
+            TreeItem<TreeNode> parent = selected.getParent();
+            parent.getValue().removeChild(node);
+            parent.getChildren().remove(selected);
+            treeView.getSelectionModel().select(parent);
+            autoSave();
         }
     }
 
-    private void updateJsonPreview(TreeNode node) {
-        if (node == null) {
-            jsonPreviewArea.clear();
+    private void duplicateNode() {
+        TreeItem<TreeNode> selected = treeView.getSelectionModel().getSelectedItem();
+        if (selected == null || selected.getParent() == null) {
+            return;
+        }
+        TreeItem<TreeNode> parent = selected.getParent();
+        TreeNode copy = deepCopy(selected.getValue());
+        copy.setName(copy.getName() + " (copy)");
+
+        int index = parent.getValue().getChildren().indexOf(selected.getValue()) + 1;
+        parent.getValue().addChild(index, copy);
+
+        TreeItem<TreeNode> copyItem = explorer.buildTreeItem(copy);
+        parent.getChildren().add(index, copyItem);
+        treeView.getSelectionModel().select(copyItem);
+        autoSave();
+    }
+
+    /** Copies a node and everything under it, giving every copy a fresh id. */
+    private TreeNode deepCopy(TreeNode source) {
+        TreeNode copy = new TreeNode(source.getName(), source.isFolder());
+        copy.getProperties().putAll(source.getProperties());
+        for (TreeNode child : source.getChildren()) {
+            copy.addChild(deepCopy(child));
+        }
+        return copy;
+    }
+
+    // ── drag and drop ───────────────────────────────────────────────
+
+    /** Moves {@code dragged} into, above or below {@code target}. The panel already validated the drop. */
+    private void moveNode(TreeNode dragged, TreeNode target, DropPosition position) {
+        TreeItem<TreeNode> draggedItem = explorer.findItem(treeView.getRoot(), dragged);
+        TreeItem<TreeNode> targetItem = explorer.findItem(treeView.getRoot(), target);
+        if (draggedItem == null || targetItem == null) {
+            return;
+        }
+
+        TreeItem<TreeNode> oldParentItem = draggedItem.getParent();
+        TreeNode oldParent = oldParentItem.getValue();
+
+        TreeItem<TreeNode> newParentItem;
+        int newIndex;
+        if (position == DropPosition.INTO) {
+            newParentItem = targetItem;
+            newIndex = target.getChildren().size();
         } else {
-            jsonPreviewArea.setText(formatJson(node, 0));
+            newParentItem = targetItem.getParent();
+            int targetIndex = newParentItem.getValue().getChildren().indexOf(target);
+            newIndex = position == DropPosition.ABOVE ? targetIndex : targetIndex + 1;
         }
-    }
+        TreeNode newParent = newParentItem.getValue();
 
-    private String formatJson(TreeNode node, int indentLevel) {
-        if (node == null)
-            return "";
-        StringBuilder sb = new StringBuilder();
-        String indent = "  ".repeat(indentLevel);
-        String childIndent = "  ".repeat(indentLevel + 1);
-
-        sb.append("{\n");
-        sb.append(childIndent).append("\"id\": \"").append(escapeJson(node.getId())).append("\",\n");
-        sb.append(childIndent).append("\"name\": \"").append(escapeJson(node.getName())).append("\",\n");
-        sb.append(childIndent).append("\"isFolder\": ").append(node.isFolder()).append(",\n");
-
-        // properties
-        sb.append(childIndent).append("\"properties\": {\n");
-        int propCount = 0;
-        int totalProps = node.getProperties().size();
-        for (Map.Entry<String, String> entry : node.getProperties().entrySet()) {
-            propCount++;
-            sb.append(childIndent).append("  \"").append(escapeJson(entry.getKey())).append("\": \"")
-                    .append(escapeJson(entry.getValue())).append("\"");
-            if (propCount < totalProps)
-                sb.append(",");
-            sb.append("\n");
+        // Removing first shifts the indexes when both are in the same list
+        int oldIndex = oldParent.getChildren().indexOf(dragged);
+        if (oldParent == newParent && oldIndex < newIndex) {
+            newIndex--;
         }
-        sb.append(childIndent).append("},\n");
-
-        // children
-        sb.append(childIndent).append("\"children\": [\n");
-        int childCount = 0;
-        int totalChildren = node.getChildren().size();
-        for (TreeNode child : node.getChildren()) {
-            childCount++;
-            sb.append(formatJson(child, indentLevel + 2));
-            if (childCount < totalChildren)
-                sb.append(",");
-            sb.append("\n");
-        }
-        sb.append(childIndent).append("]\n");
-
-        sb.append(indent).append("}");
-        return sb.toString();
-    }
-
-    private String escapeJson(String input) {
-        if (input == null)
-            return "";
-        return input.replace("\\", "\\\\")
-                .replace("\"", "\\\"")
-                .replace("\b", "\\b")
-                .replace("\f", "\\f")
-                .replace("\n", "\\n")
-                .replace("\r", "\\r")
-                .replace("\t", "\\t");
-    }
-
-    // Helper model class for Property Table rows
-    public static class PropertyEntry {
-        private final StringProperty key;
-        private final StringProperty value;
-
-        public PropertyEntry(String key, String value) {
-            this.key = new SimpleStringProperty(key);
-            this.value = new SimpleStringProperty(value);
+        if (oldParent == newParent && oldIndex == newIndex) {
+            return; // dropped where it already is
         }
 
-        public String getKey() {
-            return key.get();
-        }
+        // 1) change the data
+        oldParent.removeChild(dragged);
+        newParent.addChild(newIndex, dragged);
 
-        public void setKey(String k) {
-            key.set(k);
-        }
+        // 2) mirror it in the visible tree
+        oldParentItem.getChildren().remove(draggedItem);
+        newParentItem.getChildren().add(Math.min(newIndex, newParentItem.getChildren().size()), draggedItem);
+        newParentItem.setExpanded(true);
 
-        public StringProperty keyProperty() {
-            return key;
-        }
-
-        public String getValue() {
-            return value.get();
-        }
-
-        public void setValue(String v) {
-            value.set(v);
-        }
-
-        public StringProperty valueProperty() {
-            return value;
-        }
+        treeView.getSelectionModel().select(draggedItem);
+        autoSave();
     }
 }

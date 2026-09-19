@@ -1,4 +1,3 @@
-// FILE: src/main/java/com/treeapp/util/PersistenceUtil.java
 package com.treeapp.util;
 
 import com.treeapp.model.TreeNode;
@@ -6,19 +5,31 @@ import com.treeapp.model.TreeNode;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+/**
+ * Saves and loads the tree using Java object serialization.
+ * The file lives in the user's home directory as tree_data.ser.
+ */
 public class PersistenceUtil {
 
     private static final String FILE_PATH = System.getProperty("user.home") + File.separator + "tree_data.ser";
 
-    public static void save(TreeNode root) {
+    /**
+     * Writes the tree to disk.
+     *
+     * @return true if the write succeeded, false otherwise (so the UI can tell the user)
+     */
+    public static boolean save(TreeNode root) {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(FILE_PATH))) {
             oos.writeObject(root);
-            System.out.println("Tree data successfully saved to: " + FILE_PATH);
-        } catch (Exception e) {
+            return true;
+        } catch (IOException e) {
+            System.err.println("Failed to save tree to " + FILE_PATH);
             e.printStackTrace();
+            return false;
         }
     }
 
@@ -26,21 +37,22 @@ public class PersistenceUtil {
         File file = new File(FILE_PATH);
         if (file.exists()) {
             try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
-                TreeNode root = (TreeNode) ois.readObject();
-                System.out.println("Tree data loaded from: " + FILE_PATH);
-                return root;
+                return (TreeNode) ois.readObject();
             } catch (Exception e) {
-                System.err.println("Failed to load existing tree data, initializing default tree.");
+                System.err.println("Failed to load existing tree data, using the default tree.");
                 e.printStackTrace();
             }
         }
         return createDefaultTree();
     }
 
+    public static String getFilePath() {
+        return FILE_PATH;
+    }
+
     public static TreeNode createDefaultTree() {
         TreeNode root = new TreeNode("Root", true);
 
-        // People folder
         TreeNode people = new TreeNode("People", true);
 
         TreeNode alice = new TreeNode("Alice", false);
@@ -54,7 +66,6 @@ public class PersistenceUtil {
         people.addChild(alice);
         people.addChild(bob);
 
-        // Projects folder
         TreeNode projects = new TreeNode("Projects", true);
 
         TreeNode alpha = new TreeNode("Alpha", false);

@@ -1,4 +1,3 @@
-// FILE: src/main/java/com/treeapp/model/TreeNode.java
 package com.treeapp.model;
 
 import java.io.Serializable;
@@ -89,6 +88,37 @@ public class TreeNode implements Serializable {
         if (children != null) {
             children.remove(child);
         }
+    }
+
+    /** Inserts a child at a given position (clamped to the valid range). Folders only. */
+    public void addChild(int index, TreeNode child) {
+        if (isFolder) {
+            List<TreeNode> list = getChildren();
+            int safe = Math.max(0, Math.min(index, list.size()));
+            list.add(safe, child);
+        }
+    }
+
+    /** True if {@code other} is this node or lives anywhere below it. */
+    public boolean containsInSubtree(TreeNode other) {
+        if (other == this) {
+            return true;
+        }
+        for (TreeNode child : getChildren()) {
+            if (child.containsInSubtree(other)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** Number of nodes in this subtree, including this one. */
+    public int countNodes() {
+        int total = 1;
+        for (TreeNode child : getChildren()) {
+            total += child.countNodes();
+        }
+        return total;
     }
 
     @Override
