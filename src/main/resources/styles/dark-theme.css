@@ -1,26 +1,26 @@
-/* ===== Dark theme (Catppuccin Mocha) ===== */
+/* ===== Dark theme (Navy Terracotta) ===== */
 .root {
-    -fx-base: #1e1e2e;
-    -fx-background: #1e1e2e;
-    -fx-control-inner-background: #1e1e2e;
+    -fx-base: #18202F;
+    -fx-background: #18202F;
+    -fx-control-inner-background: #18202F;
     -fx-font-family: "Segoe UI", system;
     -fx-font-size: 13px;
 
     /* semantic colors used by the classes below */
-    -app-panel: #2a2a3e;
-    -app-surface: #1e1e2e;
-    -app-surface-alt: #181825;
-    -app-header: #313244;
-    -app-border: #45475a;
-    -app-selected: #45475a;
-    -app-text: #cdd6f4;
-    -app-muted: #6c7086;
-    -app-accent: #89b4fa;
-    -app-accent-hover: #b4befe;
-    -app-green: #a6e3a1;
-    -app-red: #f38ba8;
-    -app-on-accent: #1e1e2e;
-    -app-drop: #89b4fa;
+    -app-panel: #1E2840;
+    -app-surface: #18202F;
+    -app-surface-alt: #111825;
+    -app-header: #263050;
+    -app-border: #3A4560;
+    -app-selected: #2E3A52;
+    -app-text: #FAF7F2;
+    -app-muted: #68748A;
+    -app-accent: #B8734F;
+    -app-accent-hover: #D4895C;
+    -app-green: #6BAF92;
+    -app-red: #C0504A;
+    -app-on-accent: #FAF7F2;
+    -app-drop: #B8734F;
 }
 
 .label { -fx-text-fill: -app-text; }
@@ -144,9 +144,9 @@
 .tooltip { -fx-background-color: -app-header; -fx-text-fill: -app-text; }
 
 /* ---- tree icons (vector shapes) ---- */
-.icon-folder      { -fx-fill: #f9e2af;      }
-.icon-folder-open { -fx-fill: #fab387; }
-.icon-file        { -fx-fill: #89b4fa;      }
+.icon-folder      { -fx-fill: #D4895C;      }
+.icon-folder-open { -fx-fill: #B8734F; }
+.icon-file        { -fx-fill: #DCE1E6;      }
 .tree-cell:selected .icon-folder,
 .tree-cell:selected .icon-folder-open,
 .tree-cell:selected .icon-file { -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 2, 0, 0, 1); }

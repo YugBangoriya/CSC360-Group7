@@ -1,26 +1,26 @@
-/* ===== Light theme (Catppuccin Latte) ===== */
+/* ===== Light theme (Navy Terracotta) ===== */
 .root {
-    -fx-base: #eff1f5;
-    -fx-background: #eff1f5;
-    -fx-control-inner-background: #ffffff;
+    -fx-base: #FAF7F2;
+    -fx-background: #FAF7F2;
+    -fx-control-inner-background: #FFFFFF;
     -fx-font-family: "Segoe UI", system;
     -fx-font-size: 13px;
 
     /* semantic colors used by the classes below */
-    -app-panel: #e6e9ef;
-    -app-surface: #ffffff;
-    -app-surface-alt: #f4f5f9;
-    -app-header: #dce0e8;
-    -app-border: #bcc0cc;
-    -app-selected: #ccd0da;
-    -app-text: #4c4f69;
-    -app-muted: #8c8fa1;
-    -app-accent: #1e66f5;
-    -app-accent-hover: #7287fd;
-    -app-green: #40a02b;
-    -app-red: #d20f39;
-    -app-on-accent: #ffffff;
-    -app-drop: #1e66f5;
+    -app-panel: #F0EBE3;
+    -app-surface: #FFFFFF;
+    -app-surface-alt: #F5F0E8;
+    -app-header: #E5DFD6;
+    -app-border: #D0C8BC;
+    -app-selected: #E8DFD3;
+    -app-text: #18202F;
+    -app-muted: #68748A;
+    -app-accent: #B8734F;
+    -app-accent-hover: #9A5F3D;
+    -app-green: #4A8F6F;
+    -app-red: #B5433A;
+    -app-on-accent: #FAF7F2;
+    -app-drop: #B8734F;
 }
 
 .label { -fx-text-fill: -app-text; }
@@ -73,9 +73,9 @@
 .button:hover { -fx-background-color: -app-accent-hover; }
 .button:disabled { -fx-opacity: 0.45; }
 .button-green { -fx-background-color: -app-green; }
-.button-green:hover { -fx-background-color: derive(-app-green, 20%); }
+.button-green:hover { -fx-background-color: derive(-app-green, -15%); }
 .button-red { -fx-background-color: -app-red; }
-.button-red:hover { -fx-background-color: derive(-app-red, 20%); }
+.button-red:hover { -fx-background-color: derive(-app-red, -15%); }
 .button-small { -fx-font-size: 11px; -fx-padding: 5 10; }
 .button-large { -fx-font-size: 14px; -fx-padding: 8 20; }
 .saved-label { -fx-text-fill: -app-green; -fx-font-weight: bold; -fx-font-size: 14px; }
@@ -144,9 +144,9 @@
 .tooltip { -fx-background-color: -app-header; -fx-text-fill: -app-text; }
 
 /* ---- tree icons (vector shapes) ---- */
-.icon-folder      { -fx-fill: #df8e1d;      }
-.icon-folder-open { -fx-fill: #fe640b; }
-.icon-file        { -fx-fill: #1e66f5;      }
+.icon-folder      { -fx-fill: #B8734F;      }
+.icon-folder-open { -fx-fill: #9A5F3D; }
+.icon-file        { -fx-fill: #4A6080;      }
 .tree-cell:selected .icon-folder,
 .tree-cell:selected .icon-folder-open,
 .tree-cell:selected .icon-file { -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 2, 0, 0, 1); }
