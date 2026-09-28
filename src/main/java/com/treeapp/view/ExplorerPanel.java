@@ -10,6 +10,7 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
+import javafx.scene.control.TextField;
 import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
@@ -26,10 +27,11 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.SVGPath;
 
+import java.util.Map;
 import java.util.function.Consumer;
 
 /**
- * Left panel: the tree, the toolbar, the right-click context menu and drag and drop.
+ * Left panel: the tree, search bar, toolbar, right-click context menu and drag and drop.
  * It only shows and edits the tree structure; saving and the property editor are handled
  * by the controller through the callbacks below.
  */
@@ -46,9 +48,13 @@ public class ExplorerPanel extends VBox {
     private static final DataFormat NODE_FORMAT = new DataFormat("application/x-treeapp-node-id");
 
     private final TreeView<TreeNode> treeView = new TreeView<>();
+    private final TextField searchField = new TextField();
+    private final Button clearSearchBtn = new Button("\u2715");
     private final Button addFolderBtn = new Button("+ Folder");
     private final Button addItemBtn = new Button("+ Item");
     private final Button deleteBtn = new Button("Delete");
+
+    private TreeNode rootNode;
 
     // What the controller wants to happen
     private Consumer<Boolean> onAdd = isFolder -> { };
@@ -67,6 +73,18 @@ public class ExplorerPanel extends VBox {
 
         Label title = new Label("EXPLORER");
         title.getStyleClass().add("panel-title");
+
+        searchField.setPromptText("\uD83D\uDD0D Search nodes or properties...");
+        HBox.setHgrow(searchField, Priority.ALWAYS);
+
+        clearSearchBtn.getStyleClass().add("button-small");
+        clearSearchBtn.setFocusTraversable(false);
+        clearSearchBtn.setOnAction(e -> searchField.clear());
+
+        HBox searchBar = new HBox(4, searchField, clearSearchBtn);
+        searchBar.setAlignment(Pos.CENTER_LEFT);
+
+        searchField.textProperty().addListener((obs, oldVal, newVal) -> refreshTree());
 
         addFolderBtn.getStyleClass().addAll("button-small");
         addItemBtn.getStyleClass().addAll("button-small", "button-green");
@@ -90,13 +108,31 @@ public class ExplorerPanel extends VBox {
         });
 
         VBox.setVgrow(treeView, Priority.ALWAYS);
-        getChildren().addAll(title, toolbar, treeView);
+        getChildren().addAll(title, searchBar, toolbar, treeView);
     }
 
     // ── public API for the controller ───────────────────────────────
 
     public TreeView<TreeNode> getTreeView() {
         return treeView;
+    }
+
+    public void setRootNode(TreeNode rootNode) {
+        this.rootNode = rootNode;
+        refreshTree();
+    }
+
+    public void refreshTree() {
+        if (rootNode == null) {
+            return;
+        }
+        String query = searchField.getText() == null ? "" : searchField.getText().trim().toLowerCase();
+        if (query.isEmpty()) {
+            treeView.setRoot(buildTreeItem(rootNode));
+        } else {
+            TreeItem<TreeNode> filtered = buildFilteredTreeItem(rootNode, query);
+            treeView.setRoot(filtered != null ? filtered : new TreeItem<>(rootNode));
+        }
     }
 
     public void setOnAdd(Consumer<Boolean> handler) { this.onAdd = handler; }
@@ -115,6 +151,43 @@ public class ExplorerPanel extends VBox {
             }
         }
         return item;
+    }
+
+    /**
+     * Rebuilds a filtered tree hierarchy where nodes matching the search query
+     * (by name or property key/value) or having matching children are preserved and expanded.
+     */
+    public TreeItem<TreeNode> buildFilteredTreeItem(TreeNode node, String query) {
+        boolean nameMatch = node.getName() != null && node.getName().toLowerCase().contains(query);
+        boolean propMatch = false;
+
+        for (Map.Entry<String, String> entry : node.getProperties().entrySet()) {
+            if (entry.getKey().toLowerCase().contains(query)
+                    || (entry.getValue() != null && entry.getValue().toLowerCase().contains(query))) {
+                propMatch = true;
+                break;
+            }
+        }
+        boolean selfMatch = nameMatch || propMatch;
+
+        TreeItem<TreeNode> item = new TreeItem<>(node);
+        boolean hasMatchingChild = false;
+
+        if (node.isFolder()) {
+            for (TreeNode child : node.getChildren()) {
+                TreeItem<TreeNode> childItem = buildFilteredTreeItem(child, query);
+                if (childItem != null) {
+                    item.getChildren().add(childItem);
+                    hasMatchingChild = true;
+                }
+            }
+        }
+
+        if (selfMatch || hasMatchingChild) {
+            item.setExpanded(true);
+            return item;
+        }
+        return null;
     }
 
     /** Finds the tree item that wraps a given node, or null. */

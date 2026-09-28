@@ -3,6 +3,7 @@ package com.treeapp.controller;
 import com.treeapp.model.PropertyEntry;
 import com.treeapp.model.TreeNode;
 import com.treeapp.util.JsonFormatter;
+import com.treeapp.util.JsonParser;
 import com.treeapp.util.PersistenceUtil;
 import com.treeapp.view.ExplorerPanel;
 import com.treeapp.view.ExplorerPanel.DropPosition;
@@ -15,7 +16,11 @@ import javafx.scene.control.SplitPane;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
+import javafx.stage.FileChooser;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.nio.file.Files;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -52,7 +57,7 @@ public class MainController {
     // ── setup ───────────────────────────────────────────────────────
 
     private void buildUI() {
-        treeView.setRoot(explorer.buildTreeItem(rootNode));
+        explorer.setRootNode(rootNode);
         rootPane.getItems().addAll(explorer, editor, preview);
         rootPane.setDividerPositions(0.30, 0.70);
     }
@@ -78,6 +83,9 @@ public class MainController {
 
         editor.setOnEdited(this::applyEditsToNode);
         editor.setOnSave(this::saveToDisk);
+
+        preview.setOnExport(this::exportJson);
+        preview.setOnImport(this::importJson);
     }
 
     private void selectInitialNode() {
@@ -293,4 +301,94 @@ public class MainController {
         treeView.getSelectionModel().select(draggedItem);
         autoSave();
     }
+
+    // ── import / export JSON ────────────────────────────────────────
+
+    private void exportJson() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Export JSON");
+        fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("JSON Files (*.json)", "*.json"));
+        fileChooser.setInitialFileName(current != null ? current.getName().replaceAll("[^a-zA-Z0-9._-]", "_") + ".json" : "tree.json");
+
+        File file = fileChooser.showSaveDialog(rootPane.getScene().getWindow());
+        if (file != null) {
+            try (FileWriter writer = new FileWriter(file)) {
+                String json = JsonFormatter.format(current != null ? current : rootNode);
+                writer.write(json);
+                editor.setStatus("Exported to " + file.getName() + " \u2713", false);
+            } catch (Exception e) {
+                Alert alert = new Alert(Alert.AlertType.ERROR, "Failed to export JSON:\n" + e.getMessage());
+                alert.showAndWait();
+            }
+        }
+    }
+
+    private void importJson() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Import JSON File");
+        fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("JSON Files (*.json)", "*.json"));
+
+        File file = fileChooser.showOpenDialog(rootPane.getScene().getWindow());
+        if (file == null) {
+            return;
+        }
+
+        try {
+            String content = Files.readString(file.toPath());
+            TreeNode importedNode = JsonParser.parse(content);
+
+            Alert choice = new Alert(Alert.AlertType.CONFIRMATION);
+            choice.setTitle("Import JSON");
+            choice.setHeaderText("How would you like to import '" + file.getName() + "'?");
+
+            ButtonType btnReplace = new ButtonType("Replace Entire Tree");
+            ButtonType btnAddChild = new ButtonType("Add as Child Node");
+            ButtonType btnCancel = ButtonType.CANCEL;
+            choice.getButtonTypes().setAll(btnReplace, btnAddChild, btnCancel);
+
+            Optional<ButtonType> result = choice.showAndWait();
+            if (result.isEmpty() || result.get() == btnCancel) {
+                return;
+            }
+
+            if (result.get() == btnReplace) {
+                rootNode.setName(importedNode.getName());
+                rootNode.setFolder(importedNode.isFolder());
+                rootNode.getProperties().clear();
+                rootNode.getProperties().putAll(importedNode.getProperties());
+                rootNode.getChildren().clear();
+                rootNode.getChildren().addAll(importedNode.getChildren());
+
+                explorer.setRootNode(rootNode);
+                selectInitialNode();
+                autoSave();
+                editor.setStatus("Imported tree from " + file.getName() + " \u2713", false);
+            } else if (result.get() == btnAddChild) {
+                TreeItem<TreeNode> selected = treeView.getSelectionModel().getSelectedItem();
+                TreeItem<TreeNode> targetItem = (selected != null) ? selected : treeView.getRoot();
+                TreeNode targetNode = targetItem.getValue();
+
+                if (!targetNode.isFolder()) {
+                    targetItem = targetItem.getParent() != null ? targetItem.getParent() : treeView.getRoot();
+                    targetNode = targetItem.getValue();
+                }
+
+                targetNode.addChild(importedNode);
+                explorer.refreshTree();
+
+                TreeItem<TreeNode> importedItem = explorer.findItem(treeView.getRoot(), importedNode);
+                if (importedItem != null) {
+                    treeView.getSelectionModel().select(importedItem);
+                }
+                autoSave();
+                editor.setStatus("Imported node into '" + targetNode.getName() + "' \u2713", false);
+            }
+        } catch (Exception e) {
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Failed to import JSON file:\n" + e.getMessage());
+            alert.showAndWait();
+        }
+    }
 }
+
