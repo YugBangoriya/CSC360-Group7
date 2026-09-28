@@ -33,6 +33,9 @@ The window has three panels:
 
 ## Features
 
+- **Real-Time Search & Filter:** Quick search bar in the Explorer panel to filter and auto-expand tree nodes matching names or property keys/values in real time.
+- **JSON Import & Export:** Export your tree or any sub-tree to a `.json` file, or import external JSON files with choices to replace the tree or insert as child nodes.
+- **Animated Copy Confirmation:** One-click JSON copying with instant visual feedback (`Copied! ✓`).
 - **Drag and drop:** Drag a node onto a folder to move it inside. Drop it on the top or bottom edge of a row to put it in that position. Drops that would break the tree are blocked: you can't move the root, drop a folder into itself or one of its own children, or drop something inside an item.
 - **Right-click menu:** New Folder, New Item, Rename, Duplicate, Delete, Expand All and Collapse All.
 - **Light and dark theme:** Switch with the button in the top right, or press `Ctrl+T`. The app remembers your choice.
@@ -73,6 +76,13 @@ Running the main class with the green Run button can fail with *"JavaFX runtime 
 
 ## How to Use It
 
+**Search nodes**
+- Type in the search box above the Explorer to filter nodes and properties live. Click **✕** to clear.
+
+**Import / Export JSON**
+- Click **Export** in the JSON Preview header to save the current subtree as a `.json` file.
+- Click **Import** to select any `.json` file and choose whether to replace the full tree or insert as a child node.
+
 **Add nodes**
 1. Select a folder in the Explorer, or select an item to add next to it.
 2. Click **+ Folder** or **+ Item** (or right-click and choose **New Folder** / **New Item**).
@@ -107,7 +117,7 @@ The project follows a Model-View-Controller layout.
 CSC360-Group7/
 ├── pom.xml
 ├── README.md
-├── docs/screenshots/                   # UI screenshots (dark and light)
+├── docs/screenshots/                   # UI screenshots (dark, light, search, copy feedback)
 └── src/main/
     ├── java/com/treeapp/
     │   ├── Main.java                   # Launcher (avoids the JavaFX module-path error)
@@ -118,12 +128,13 @@ CSC360-Group7/
     │   │   ├── TreeNode.java           # One node: id, name, folder flag, children, properties
     │   │   └── PropertyEntry.java      # One row of the property table
     │   ├── view/
-    │   │   ├── ExplorerPanel.java      # Tree, toolbar, right-click menu, drag and drop
+    │   │   ├── ExplorerPanel.java      # Tree, search bar, toolbar, right-click menu, drag and drop
     │   │   ├── PropertyEditorPanel.java
-    │   │   └── JsonPreviewPanel.java
+    │   │   └── JsonPreviewPanel.java   # JSON view with Copy, Import, and Export actions
     │   └── util/
     │       ├── PersistenceUtil.java    # Saves and loads ~/tree_data.ser
     │       ├── JsonFormatter.java      # Turns a node into JSON text
+    │       ├── JsonParser.java         # Parses JSON files into TreeNode models
     │       └── ThemeManager.java       # Switches and remembers the theme
     └── resources/styles/
         ├── dark-theme.css
