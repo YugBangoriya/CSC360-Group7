@@ -20,6 +20,7 @@ import javafx.stage.FileChooser;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -313,7 +314,7 @@ public class MainController {
 
         File file = fileChooser.showSaveDialog(rootPane.getScene().getWindow());
         if (file != null) {
-            try (FileWriter writer = new FileWriter(file)) {
+            try (FileWriter writer = new FileWriter(file, StandardCharsets.UTF_8)) {
                 String json = JsonFormatter.format(current != null ? current : rootNode);
                 writer.write(json);
                 editor.setStatus("Exported to " + file.getName() + " \u2713", false);

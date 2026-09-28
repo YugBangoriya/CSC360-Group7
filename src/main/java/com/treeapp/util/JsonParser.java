@@ -200,6 +200,23 @@ public final class JsonParser {
                     case 'n' -> sb.append('\n');
                     case 'r' -> sb.append('\r');
                     case 't' -> sb.append('\t');
+                    case 'u' -> {
+                        boolean parsed = false;
+                        if (pos[0] + 4 <= s.length()) {
+                            String hex = s.substring(pos[0], pos[0] + 4);
+                            try {
+                                int codePoint = Integer.parseInt(hex, 16);
+                                sb.append((char) codePoint);
+                                pos[0] += 4;
+                                parsed = true;
+                            } catch (NumberFormatException ignored) {
+                                // Fall through to treat as literal if invalid hex
+                            }
+                        }
+                        if (!parsed) {
+                            sb.append('\\').append('u');
+                        }
+                    }
                     default -> sb.append(next);
                 }
             } else {

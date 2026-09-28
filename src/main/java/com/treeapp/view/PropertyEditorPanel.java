@@ -3,8 +3,6 @@ package com.treeapp.view;
 import com.treeapp.model.PropertyEntry;
 
 import javafx.animation.FadeTransition;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;

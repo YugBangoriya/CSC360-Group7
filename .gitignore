@@ -4,6 +4,8 @@ target/
 # Local Maven binaries
 apache-maven-*/
 maven.tar.gz
+tools/
+bin/
 
 # IDE files
 .idea/

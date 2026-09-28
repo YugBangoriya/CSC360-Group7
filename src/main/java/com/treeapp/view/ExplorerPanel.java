@@ -27,6 +27,8 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.SVGPath;
 
+import javafx.beans.value.ChangeListener;
+
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -229,10 +231,21 @@ public class ExplorerPanel extends VBox {
             }
         };
 
-        // Refresh the folder icon when it is expanded/collapsed with the arrow
+        // Refresh the folder icon when it is expanded/collapsed with the arrow.
+        // The listener reference is stored so it can be removed from the old TreeItem
+        // when the cell is recycled — without this, one orphaned listener accumulates
+        // per recycle cycle, leaking both the listener and the cell it closes over.
+        @SuppressWarnings("unchecked")
+        ChangeListener<Boolean>[] expandListenerHolder = new ChangeListener[1];
         cell.treeItemProperty().addListener((obs, oldItem, newItem) -> {
+            if (oldItem != null && expandListenerHolder[0] != null) {
+                oldItem.expandedProperty().removeListener(expandListenerHolder[0]);
+            }
             if (newItem != null) {
-                newItem.expandedProperty().addListener((o, was, is) -> cell.updateIndex(cell.getIndex()));
+                expandListenerHolder[0] = (o, was, is) -> cell.updateIndex(cell.getIndex());
+                newItem.expandedProperty().addListener(expandListenerHolder[0]);
+            } else {
+                expandListenerHolder[0] = null;
             }
         });
 
