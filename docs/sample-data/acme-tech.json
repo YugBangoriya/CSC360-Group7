@@ -1,0 +1,274 @@
+{
+  "id": "ce67e8e0-df2e-449c-a4e4-23521a98f1b7",
+  "name": "Acme Tech Ltd",
+  "isFolder": true,
+  "properties": {
+    "industry": "Software",
+    "headquarters": "Ahmedabad"
+  },
+  "children": [
+    {
+      "id": "7ebb9b24-2fe2-4aeb-ae88-8a6792c4c7e0",
+      "name": "Engineering",
+      "isFolder": true,
+      "properties": {
+        "head": "Priya Nair",
+        "budget": "450000"
+      },
+      "children": [
+        {
+          "id": "4f5a99be-709d-4a1c-b970-77e1f67dcfe0",
+          "name": "Backend Team",
+          "isFolder": true,
+          "properties": {
+            "lead": "Rahul Mehta",
+            "stack": "Java, Spring"
+          },
+          "children": [
+            {
+              "id": "f4d997d0-5ecd-4d7d-aa7e-37e20f9ca944",
+              "name": "Rahul Mehta",
+              "isFolder": false,
+              "properties": {
+                "role": "Team Lead",
+                "team": "Backend",
+                "level": "Senior",
+                "location": "Ahmedabad",
+                "status": "Active"
+              },
+              "children": []
+            },
+            {
+              "id": "34586db7-d6b2-4ad2-9d61-9dbd8963ad5a",
+              "name": "Sneha Patel",
+              "isFolder": false,
+              "properties": {
+                "role": "Developer",
+                "team": "Backend",
+                "level": "Mid",
+                "location": "Pune",
+                "status": "Active"
+              },
+              "children": []
+            },
+            {
+              "id": "1f901cf7-7a87-49f3-86ea-8e61ec64f191",
+              "name": "Karan Shah",
+              "isFolder": false,
+              "properties": {
+                "role": "Developer",
+                "team": "Backend",
+                "level": "Junior",
+                "location": "Ahmedabad",
+                "status": "On Leave"
+              },
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": "23f5e49c-cf88-4c2f-bbed-633b643bdf91",
+          "name": "Frontend Team",
+          "isFolder": true,
+          "properties": {
+            "lead": "Ananya Iyer",
+            "stack": "JavaFX, CSS"
+          },
+          "children": [
+            {
+              "id": "92d45851-4d86-4071-abe6-05d88f6dd526",
+              "name": "Ananya Iyer",
+              "isFolder": false,
+              "properties": {
+                "role": "UI Developer",
+                "team": "Frontend",
+                "level": "Senior",
+                "location": "Remote",
+                "status": "Active"
+              },
+              "children": []
+            },
+            {
+              "id": "eec1e6ab-911e-4998-bc6f-0419ca30b11d",
+              "name": "Dev Joshi",
+              "isFolder": false,
+              "properties": {
+                "role": "Developer",
+                "team": "Frontend",
+                "level": "Junior",
+                "location": "Ahmedabad",
+                "status": "Active"
+              },
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": "f21e2f82-6de8-42b4-86a3-eb0d1d760942",
+          "name": "QA Team",
+          "isFolder": true,
+          "properties": {},
+          "children": []
+        }
+      ]
+    },
+    {
+      "id": "80d48172-6aea-45f9-a66d-2fa667e7f00c",
+      "name": "Design",
+      "isFolder": true,
+      "properties": {
+        "head": "Meera Kapoor"
+      },
+      "children": [
+        {
+          "id": "54f1e704-a1a3-417b-9f3b-5c3ed20f4a5f",
+          "name": "Meera Kapoor",
+          "isFolder": false,
+          "properties": {
+            "role": "UX Designer",
+            "team": "Design",
+            "level": "Senior",
+            "location": "Mumbai",
+            "status": "Active"
+          },
+          "children": []
+        }
+      ]
+    },
+    {
+      "id": "4ed21c39-c3bf-4026-9998-a421bddb96bd",
+      "name": "Projects",
+      "isFolder": true,
+      "properties": {},
+      "children": [
+        {
+          "id": "90b5c3bf-91e8-4d31-a8c7-b07eb385539d",
+          "name": "Website Redesign",
+          "isFolder": true,
+          "properties": {
+            "status": "Active",
+            "deadline": "2026-11-30",
+            "priority": "High",
+            "budget": "120000"
+          },
+          "children": [
+            {
+              "id": "77cf3ee5-8078-4865-943e-9aab89111629",
+              "name": "Sprint 1",
+              "isFolder": true,
+              "properties": {
+                "goal": "Ship the new homepage",
+                "ends": "2026-10-15"
+              },
+              "children": [
+                {
+                  "id": "7e4c8505-d7ca-4ca1-914d-57c7100eeb8e",
+                  "name": "Homepage Mockup",
+                  "isFolder": false,
+                  "properties": {
+                    "status": "Done",
+                    "owner": "Meera Kapoor",
+                    "hours": "24"
+                  },
+                  "children": []
+                },
+                {
+                  "id": "e1f174ef-7074-48e5-a30e-fe52eec2095a",
+                  "name": "API Integration",
+                  "isFolder": false,
+                  "properties": {
+                    "status": "In Progress",
+                    "owner": "Rahul Mehta",
+                    "hours": "40"
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "id": "09cff63a-153a-45a8-972c-e314cf27d864",
+              "name": "Release Notes",
+              "isFolder": false,
+              "properties": {
+                "status": "Draft",
+                "owner": "Sneha Patel"
+              },
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": "eb0df6cc-a87e-4ad7-96a4-0edf75e99d44",
+          "name": "Mobile App",
+          "isFolder": true,
+          "properties": {
+            "status": "Planning",
+            "deadline": "2027-03-15",
+            "priority": "Medium"
+          },
+          "children": [
+            {
+              "id": "a25da328-f913-4e7c-be48-ef850556b8ba",
+              "name": "Login Screen",
+              "isFolder": false,
+              "properties": {
+                "status": "In Progress",
+                "owner": "Ananya Iyer",
+                "hours": "16"
+              },
+              "children": []
+            },
+            {
+              "id": "96304bde-5aab-4ece-b35d-8d0353ee535d",
+              "name": "Release Notes",
+              "isFolder": false,
+              "properties": {
+                "status": "Not Started",
+                "owner": "Dev Joshi"
+              },
+              "children": []
+            }
+          ]
+        },
+        {
+          "id": "c7e1d466-c029-488f-9817-c3e96244f1b2",
+          "name": "Archive",
+          "isFolder": true,
+          "properties": {},
+          "children": [
+            {
+              "id": "f0c5a52c-af75-4983-8a25-bc6595c87d8e",
+              "name": "Legacy Intranet",
+              "isFolder": false,
+              "properties": {
+                "status": "Closed",
+                "deadline": "2024-06-30"
+              },
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "a88cab0a-bb03-432a-87fe-288e67450aeb",
+      "name": "Documents",
+      "isFolder": true,
+      "properties": {},
+      "children": [
+        {
+          "id": "2eae07fc-6593-4da8-b9dd-ab1aa038453e",
+          "name": "Meeting Notes",
+          "isFolder": false,
+          "properties": {
+            "date": "2026-09-25",
+            "path": "C:\\Acme\\Docs\\meeting-notes.txt",
+            "quote": "He said \"ship it on Friday\"",
+            "summary": "Discussed the sprint goals, the API integration risks, and who reviews the homepage mockup before the release."
+          },
+          "children": []
+        }
+      ]
+    }
+  ]
+}
