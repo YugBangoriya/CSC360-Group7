@@ -206,29 +206,6 @@ public class MainController {
         saveStatusLabel.setText(message + " (" + timestamp + ")");
     }
 
-    public void resetToSampleTree() {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Reset to Sample Data");
-        alert.setHeaderText("Reset tree to default sample data?");
-        alert.setContentText("This will replace your current tree structure with default sample nodes.");
-
-        Optional<ButtonType> result = alert.showAndWait();
-        if (result.isPresent() && result.get() == ButtonType.OK) {
-            TreeNode defaultTree = PersistenceUtil.createDefaultTree();
-            rootNode.setName(defaultTree.getName());
-            rootNode.setFolder(defaultTree.isFolder());
-            rootNode.getProperties().clear();
-            rootNode.getProperties().putAll(defaultTree.getProperties());
-            rootNode.getChildren().clear();
-            rootNode.getChildren().addAll(defaultTree.getChildren());
-
-            explorer.setRootNode(rootNode);
-            selectInitialNode();
-            autoSave();
-            editor.setStatus("Reset to default sample tree \u2713", false);
-        }
-    }
-
     // ── add / rename / delete / duplicate ───────────────────────────
 
     /** Adds into the selected folder, or next to the selected item. */
