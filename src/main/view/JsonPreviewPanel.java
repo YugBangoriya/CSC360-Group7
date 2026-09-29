@@ -1,4 +1,4 @@
-package com.treeapp.view;
+package view;
 
 import javafx.animation.PauseTransition;
 import javafx.geometry.Insets;

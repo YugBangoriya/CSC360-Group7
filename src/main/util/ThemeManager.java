@@ -1,4 +1,4 @@
-package com.treeapp.util;
+package util;
 
 import javafx.scene.Scene;
 

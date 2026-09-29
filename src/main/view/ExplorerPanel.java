@@ -1,6 +1,6 @@
-package com.treeapp.view;
+package view;
 
-import com.treeapp.model.TreeNode;
+import model.TreeNode;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;

@@ -1,4 +1,4 @@
-package com.treeapp.model;
+package model;
 
 import java.io.Serializable;
 import java.util.ArrayList;

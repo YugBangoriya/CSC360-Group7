@@ -1,6 +1,6 @@
-package com.treeapp.view;
+package view;
 
-import com.treeapp.model.PropertyEntry;
+import model.PropertyEntry;
 
 import javafx.animation.FadeTransition;
 import javafx.collections.FXCollections;

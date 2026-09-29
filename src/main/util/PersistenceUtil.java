@@ -1,6 +1,6 @@
-package com.treeapp.util;
+package util;
 
-import com.treeapp.model.TreeNode;
+import model.TreeNode;
 
 import java.io.File;
 import java.io.FileInputStream;

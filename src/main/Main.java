@@ -1,4 +1,3 @@
-package com.treeapp;
 
 /**
  * Entry point launcher for the Tree Object Editor application.

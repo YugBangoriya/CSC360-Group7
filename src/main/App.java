@@ -1,7 +1,5 @@
-package com.treeapp;
-
-import com.treeapp.controller.MainController;
-import com.treeapp.util.ThemeManager;
+import controller.MainController;
+import util.ThemeManager;
 
 import javafx.application.Application;
 import javafx.geometry.Insets;

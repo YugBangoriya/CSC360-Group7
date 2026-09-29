@@ -1,14 +1,14 @@
-package com.treeapp.controller;
+package controller;
 
-import com.treeapp.model.PropertyEntry;
-import com.treeapp.model.TreeNode;
-import com.treeapp.util.JsonFormatter;
-import com.treeapp.util.JsonParser;
-import com.treeapp.util.PersistenceUtil;
-import com.treeapp.view.ExplorerPanel;
-import com.treeapp.view.ExplorerPanel.DropPosition;
-import com.treeapp.view.JsonPreviewPanel;
-import com.treeapp.view.PropertyEditorPanel;
+import model.PropertyEntry;
+import model.TreeNode;
+import util.JsonFormatter;
+import util.JsonParser;
+import util.PersistenceUtil;
+import view.ExplorerPanel;
+import view.ExplorerPanel.DropPosition;
+import view.JsonPreviewPanel;
+import view.PropertyEditorPanel;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
