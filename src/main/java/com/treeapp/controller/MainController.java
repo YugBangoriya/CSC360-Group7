@@ -10,18 +10,28 @@ import com.treeapp.view.ExplorerPanel.DropPosition;
 import com.treeapp.view.JsonPreviewPanel;
 import com.treeapp.view.PropertyEditorPanel;
 
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.Label;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.stage.FileChooser;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -33,7 +43,10 @@ import java.util.Optional;
  */
 public class MainController {
 
+    private final BorderPane mainContainer = new BorderPane();
     private final SplitPane rootPane = new SplitPane();
+    private final Label statsLabel = new Label();
+    private final Label saveStatusLabel = new Label();
     private final TreeNode rootNode;
 
     private final ExplorerPanel explorer = new ExplorerPanel();
@@ -51,8 +64,8 @@ public class MainController {
         selectInitialNode();
     }
 
-    public SplitPane getRootPane() {
-        return rootPane;
+    public Pane getRootPane() {
+        return mainContainer;
     }
 
     // ── setup ───────────────────────────────────────────────────────
@@ -61,6 +74,22 @@ public class MainController {
         explorer.setRootNode(rootNode);
         rootPane.getItems().addAll(explorer, editor, preview);
         rootPane.setDividerPositions(0.30, 0.70);
+
+        statsLabel.getStyleClass().add("status-text");
+        saveStatusLabel.getStyleClass().add("status-saved");
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        HBox statusBar = new HBox(12, statsLabel, spacer, saveStatusLabel);
+        statusBar.setAlignment(Pos.CENTER_LEFT);
+        statusBar.getStyleClass().add("status-bar");
+
+        mainContainer.setCenter(rootPane);
+        mainContainer.setBottom(statusBar);
+
+        updateStats();
+        updateSaveStatus("Saved \u2713");
     }
 
     private void wireEvents() {
@@ -134,18 +163,69 @@ public class MainController {
     }
 
     private void autoSave() {
-        if (!PersistenceUtil.save(rootNode)) {
+        if (PersistenceUtil.save(rootNode)) {
+            updateSaveStatus("Auto-saved \u2713");
+        } else {
             editor.setStatus("Could not save!", true);
+            saveStatusLabel.setText("Save failed!");
         }
+        updateStats();
     }
 
     private void saveToDisk() {
         if (PersistenceUtil.save(rootNode)) {
             editor.setStatus("Saved \u2713", false);
+            updateSaveStatus("Saved \u2713");
         } else {
             editor.setStatus("Save failed", true);
+            saveStatusLabel.setText("Save failed!");
             new Alert(Alert.AlertType.ERROR,
                     "Could not write to:\n" + PersistenceUtil.getFilePath()).showAndWait();
+        }
+        updateStats();
+    }
+
+    private void updateStats() {
+        int totalFolders = countFolders(rootNode);
+        int totalNodes = rootNode.countNodes();
+        int totalItems = totalNodes - totalFolders;
+        statsLabel.setText(String.format("Total Nodes: %d  |  Folders: %d  |  Items: %d", totalNodes, totalFolders, totalItems));
+    }
+
+    private int countFolders(TreeNode node) {
+        if (node == null) return 0;
+        int count = node.isFolder() ? 1 : 0;
+        for (TreeNode child : node.getChildren()) {
+            count += countFolders(child);
+        }
+        return count;
+    }
+
+    private void updateSaveStatus(String message) {
+        String timestamp = DateTimeFormatter.ofPattern("HH:mm:ss").format(LocalTime.now());
+        saveStatusLabel.setText(message + " (" + timestamp + ")");
+    }
+
+    public void resetToSampleTree() {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Reset to Sample Data");
+        alert.setHeaderText("Reset tree to default sample data?");
+        alert.setContentText("This will replace your current tree structure with default sample nodes.");
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            TreeNode defaultTree = PersistenceUtil.createDefaultTree();
+            rootNode.setName(defaultTree.getName());
+            rootNode.setFolder(defaultTree.isFolder());
+            rootNode.getProperties().clear();
+            rootNode.getProperties().putAll(defaultTree.getProperties());
+            rootNode.getChildren().clear();
+            rootNode.getChildren().addAll(defaultTree.getChildren());
+
+            explorer.setRootNode(rootNode);
+            selectInitialNode();
+            autoSave();
+            editor.setStatus("Reset to default sample tree \u2713", false);
         }
     }
 

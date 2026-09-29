@@ -29,6 +29,10 @@ public class App extends Application {
         Label appTitle = new Label("Tree Object Editor");
         appTitle.getStyleClass().add("panel-title");
 
+        Button resetBtn = new Button("Reset Sample Data");
+        resetBtn.getStyleClass().add("button-small");
+        resetBtn.setOnAction(e -> controller.resetToSampleTree());
+
         Button themeBtn = new Button();
         themeBtn.getStyleClass().add("button-small");
         Runnable refreshButtonText = () -> themeBtn.setText(
@@ -41,7 +45,7 @@ public class App extends Application {
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
-        HBox topBar = new HBox(10, appTitle, spacer, themeBtn);
+        HBox topBar = new HBox(10, appTitle, spacer, resetBtn, themeBtn);
         topBar.setAlignment(Pos.CENTER_LEFT);
         topBar.setPadding(new Insets(8, 12, 8, 12));
         topBar.getStyleClass().add("panel");

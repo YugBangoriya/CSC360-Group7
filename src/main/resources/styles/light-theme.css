@@ -80,6 +80,9 @@
 .button-large { -fx-font-size: 14px; -fx-padding: 8 20; }
 .saved-label { -fx-text-fill: -app-green; -fx-font-weight: bold; -fx-font-size: 14px; }
 .error-label { -fx-text-fill: -app-red; -fx-font-weight: bold; -fx-font-size: 14px; }
+.status-bar { -fx-background-color: -app-panel; -fx-border-color: -app-border transparent transparent transparent; -fx-border-width: 1 0 0 0; -fx-padding: 6 12; }
+.status-text { -fx-text-fill: -app-muted; -fx-font-size: 11px; }
+.status-saved { -fx-text-fill: -app-green; -fx-font-size: 11px; -fx-font-weight: bold; }
 
 /* ---- tree ---- */
 .tree-view {

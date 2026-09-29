@@ -95,7 +95,14 @@ public class ExplorerPanel extends VBox {
         addItemBtn.setOnAction(e -> onAdd.accept(false));
         deleteBtn.setOnAction(e -> onDelete.run());
 
-        HBox toolbar = new HBox(6, addFolderBtn, addItemBtn, deleteBtn);
+        Button expandAllBtn = new Button("\u25B3 Expand");
+        Button collapseAllBtn = new Button("\u25BD Collapse");
+        expandAllBtn.getStyleClass().add("button-small");
+        collapseAllBtn.getStyleClass().add("button-small");
+        expandAllBtn.setOnAction(e -> setExpandedAll(true));
+        collapseAllBtn.setOnAction(e -> setExpandedAll(false));
+
+        HBox toolbar = new HBox(4, addFolderBtn, addItemBtn, deleteBtn, expandAllBtn, collapseAllBtn);
         toolbar.setAlignment(Pos.CENTER_LEFT);
 
         treeView.setShowRoot(true);
@@ -117,6 +124,15 @@ public class ExplorerPanel extends VBox {
 
     public TreeView<TreeNode> getTreeView() {
         return treeView;
+    }
+
+    public void setExpandedAll(boolean expanded) {
+        if (treeView.getRoot() != null) {
+            setExpandedRecursive(treeView.getRoot(), expanded);
+            if (!expanded) {
+                treeView.getRoot().setExpanded(true);
+            }
+        }
     }
 
     public void setRootNode(TreeNode rootNode) {
