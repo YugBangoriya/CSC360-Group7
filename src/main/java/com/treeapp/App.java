@@ -18,6 +18,10 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.stage.Stage;
 
+/**
+ * Main JavaFX Application class for Tree Object Editor.
+ * Configures the primary stage, top header bar, theme switching, and global shortcuts.
+ */
 public class App extends Application {
 
     @Override
@@ -25,10 +29,11 @@ public class App extends Application {
         MainController controller = new MainController();
         ThemeManager themes = new ThemeManager();
 
-        // Top bar with the theme toggle
+        // Header title
         Label appTitle = new Label("Tree Object Editor");
         appTitle.getStyleClass().add("panel-title");
 
+        // Theme toggle button
         Button themeBtn = new Button();
         themeBtn.getStyleClass().add("button-small");
         Runnable refreshButtonText = () -> themeBtn.setText(
@@ -53,7 +58,7 @@ public class App extends Application {
         Scene scene = new Scene(root, 1180, 720);
         themes.attach(scene);
 
-        // Ctrl+T toggles the theme too
+        // Global shortcut: Ctrl+T toggles light/dark theme
         scene.getAccelerators().put(new KeyCodeCombination(KeyCode.T, KeyCombination.SHORTCUT_DOWN),
                 themeBtn::fire);
 
