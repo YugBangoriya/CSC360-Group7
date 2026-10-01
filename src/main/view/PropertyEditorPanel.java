@@ -21,7 +21,8 @@ import javafx.util.Duration;
 
 /**
  * Centre panel: edit the selected node's name and its key/value properties.
- * Edits are reported through {@link #setOnEdited(Runnable)} so the controller can apply them
+ * Edits are reported through {@link #setOnEdited(Runnable)} so the controller
+ * can apply them
  * to the node straight away (no "forgot to click Save" data loss).
  */
 public class PropertyEditorPanel extends VBox {
@@ -37,11 +38,17 @@ public class PropertyEditorPanel extends VBox {
     private final Label statusLabel = new Label();
     private final Label hintLabel = new Label();
 
-    private Runnable onEdited = () -> { };
-    private Runnable onSave = () -> { };
-    /** True while the controller is filling the fields, so that doesn't count as a user edit. */
+    private Runnable onEdited = () -> {
+    };
+    private Runnable onSave = () -> {
+    };
+    /**
+     * True while the controller is filling the fields, so that doesn't count as a
+     * user edit.
+     */
     private boolean loading;
 
+    @SuppressWarnings("deprecation")
     public PropertyEditorPanel() {
         super(14);
         setPadding(new Insets(12));
@@ -95,7 +102,8 @@ public class PropertyEditorPanel extends VBox {
         hintLabel.setManaged(false);
         hintLabel.setVisible(false);
 
-        // Add-property row: the two fields share the space; buttons keep their full width
+        // Add-property row: the two fields share the space; buttons keep their full
+        // width
         newKeyField.setPromptText("New Key");
         newValueField.setPromptText("New Value");
         HBox.setHgrow(newKeyField, Priority.ALWAYS);
@@ -148,12 +156,21 @@ public class PropertyEditorPanel extends VBox {
 
     // ── API for the controller ──────────────────────────────────────
 
-    public void setOnEdited(Runnable r) { this.onEdited = r; }
-    public void setOnSave(Runnable r) { this.onSave = r; }
+    public void setOnEdited(Runnable r) {
+        this.onEdited = r;
+    }
 
-    public String getNodeName() { return nameField.getText(); }
+    public void setOnSave(Runnable r) {
+        this.onSave = r;
+    }
 
-    public ObservableList<PropertyEntry> getEntries() { return entries; }
+    public String getNodeName() {
+        return nameField.getText();
+    }
+
+    public ObservableList<PropertyEntry> getEntries() {
+        return entries;
+    }
 
     /** Fill the panel for a node. {@code hint} may be null. */
     public void show(String name, java.util.Map<String, String> props, String hint) {
@@ -195,7 +212,9 @@ public class PropertyEditorPanel extends VBox {
         saveBtn.setDisable(!enabled);
     }
 
-    /** Show a short message next to the Save button; fades out after two seconds. */
+    /**
+     * Show a short message next to the Save button; fades out after two seconds.
+     */
     public void setStatus(String message, boolean error) {
         statusLabel.setText(message);
         statusLabel.getStyleClass().removeAll("saved-label", "error-label");

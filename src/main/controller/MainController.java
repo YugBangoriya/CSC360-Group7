@@ -10,7 +10,6 @@ import view.ExplorerPanel.DropPosition;
 import view.JsonPreviewPanel;
 import view.PropertyEditorPanel;
 
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
