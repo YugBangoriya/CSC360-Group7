@@ -18,17 +18,41 @@ import javafx.stage.Stage;
 
 /**
  * Main JavaFX Application class for Tree Object Editor.
- * Configures the primary stage, top header bar, theme switching, and global shortcuts.
+ * Configures the primary stage, top header bar, theme switching, and global
+ * shortcuts.
+ *
+ * <p>
+ * Grove opens with a {@link SplashScreen} that demonstrates
+ * animation and interpolation concepts from FK §2.7–2.12 before handing
+ * control to the main editor window.
+ * </p>
  */
 public class App extends Application {
 
     @Override
-    public void start(Stage stage) {
+    public void start(Stage primaryStage) {
+        // ── Show the splash screen first; launch the main window in its callback.
+        // SplashScreen.onComplete runs on the JavaFX Application Thread,
+        // so constructing MainController (which creates JavaFX nodes) is safe.
+        new SplashScreen(() -> launchApp(primaryStage)).show();
+    }
+
+    /**
+     * Builds and shows the main application window.
+     * Called by {@link SplashScreen} after its exit animation completes.
+     *
+     * <p>
+     * This is the original {@code start()} body extracted verbatim —
+     * no functional change, only moved to a named method so the splash
+     * callback stays one readable line.
+     * </p>
+     */
+    private void launchApp(Stage stage) {
         MainController controller = new MainController();
         ThemeManager themes = new ThemeManager();
 
         // Header title
-        Label appTitle = new Label("Tree Object Editor");
+        Label appTitle = new Label("Grove");
         appTitle.getStyleClass().add("panel-title");
 
         // Theme toggle button
@@ -57,10 +81,11 @@ public class App extends Application {
         themes.attach(scene);
 
         // Global shortcut: Ctrl+T toggles light/dark theme
-        scene.getAccelerators().put(new KeyCodeCombination(KeyCode.T, KeyCombination.SHORTCUT_DOWN),
+        scene.getAccelerators().put(
+                new KeyCodeCombination(KeyCode.T, KeyCombination.SHORTCUT_DOWN),
                 themeBtn::fire);
 
-        stage.setTitle("JavaFX Tree Object Editor with Persistence");
+        stage.setTitle("Grove — Tree Object Editor");
         stage.setMinWidth(900);
         stage.setMinHeight(520);
         stage.setScene(scene);
