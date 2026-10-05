@@ -1,6 +1,6 @@
 # Project Documentation & Resources
 
-This directory contains visual documentation assets and sample data files for the **Tree Object Editor** application.
+This directory contains visual documentation assets and sample data files for **Grove**.
 
 ---
 
