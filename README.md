@@ -26,6 +26,18 @@ The window has three panels, plus a status bar at the bottom:
 
 ---
 
+## Screenshots
+
+| Dark Theme | Light Theme |
+|:----------:|:-----------:|
+| ![Dark](docs/screenshots/shot_dark.png) | ![Light](docs/screenshots/shot_light.png) |
+
+| Search Active | Copy Feedback |
+|:-------------:|:-------------:|
+| ![Search](docs/screenshots/shot_search.png) | ![Copy](docs/screenshots/shot_copy_feedback.png) |
+
+---
+
 ## The Story Behind Grove
 
 In Session 9, when the professor introduced Group 7's project, he described it like this: *"Think of the left panel in Windows File Explorer — a tree of objects, where clicking a node opens it for editing, and everything is saved to disk so nothing is lost between sessions."*
@@ -50,18 +62,6 @@ That one sentence turned something abstract into something concrete and familiar
 | **Auto-save** | Every change is written to disk immediately. There is no Save button to forget. |
 | **Input validation** | Blank names and duplicate property keys are rejected with a clear message. |
 | **Keyboard shortcuts** | `F2` to rename, `Delete` to delete, `Ctrl+T` to toggle theme. |
-
----
-
-## Screenshots
-
-| Dark Theme | Light Theme |
-|:----------:|:-----------:|
-| ![Dark](docs/screenshots/shot_dark.png) | ![Light](docs/screenshots/shot_light.png) |
-
-| Search Active | Copy Feedback |
-|:-------------:|:-------------:|
-| ![Search](docs/screenshots/shot_search.png) | ![Copy](docs/screenshots/shot_copy_feedback.png) |
 
 ---
 
@@ -107,6 +107,9 @@ Type in the search box above the Explorer. The tree filters as you type, showing
 
 **Move nodes around**
 Drag a node onto a folder to move it inside. Drag to the top or bottom edge of a row to place it just above or below that row.
+
+**Duplicate a node**
+Right-click any node → **Duplicate**. The copy is placed directly below the original and named "[original name] (copy)". It gets its own unique ID and carries all the original's properties and children.
 
 **Import or export JSON**
 Select a node, then click **Export** in the JSON Preview header to save it as a `.json` file. Click **Import** to load a `.json` file and choose whether to replace the whole tree or add it as a child.
