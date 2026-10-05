@@ -17,7 +17,7 @@ import javafx.scene.layout.Region;
 import javafx.stage.Stage;
 
 /**
- * Main JavaFX Application class for Tree Object Editor.
+ * Main JavaFX Application class for Grove.
  * Configures the primary stage, top header bar, theme switching, and global
  * shortcuts.
  *
